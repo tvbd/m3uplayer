@@ -1,0 +1,131 @@
+
+.width-30-pct{
+    width:30%;
+}
+ 
+.text-align-center{
+    text-align:center;
+}
+ 
+.margin-bottom-1em{
+    margin-bottom:1em;
+}
+
+.breakEmail, .breakEmail a{
+	  /* These are technically the same, but use both */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  -ms-word-break: break-all;
+  /* This is the dangerous one in WebKit, as it breaks things wherever */
+  word-break: break-all;
+  /* Instead use this non-standard one: */
+  word-break: break-word;
+
+  /* Adds a hyphen where the word breaks, if supported (No Blink) */
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+	
+}
+
+.activetab {
+	background-color: #ee6e73 !important;
+	color: #fff!important;   min-width: 50px;
+}
+
+.activetab i.right { margin-left: 0px; }
+
+tr th {cursor: pointer;}
+
+.divider, .sorter {display: none;}
+
+.sorter .btn {    margin-bottom: 2px;
+    font-size: .75em; padding: 0 2px;}
+    .customAction {margin-bottom: 2px;}
+
+.ng-invalid.ng-dirty, input[type=tel].ng-invalid.ng-dirty:focus:not([readonly]){border-bottom: 1px solid #F44336;
+    box-shadow: 0 1px 0 0 #F44336;}
+
+@media screen and (max-width: 1300px) {
+	.container { width:90%;}
+}
+
+/* 
+Max width before this PARTICULAR table gets nasty
+This query will take effect for any screen smaller than 760px
+and also iPads specifically.
+*/
+@media 
+only screen and (max-width: 760px),
+(min-device-width: 768px) and (max-device-width: 1024px)  {
+	tr {margin-bottom: 10px;}
+	.divider {display: block; width:100%;}
+	.sorter {display: inline-block; margin-top: 15px;}
+	.nopad {padding: 0!important; margin: 0;}
+
+	/* Force table to not be like tables anymore */
+	table, thead, tbody, th, td, tr { 
+		display: block; 
+	}
+	
+	/* Hide table headers (but not display: none;, for accessibility) */
+	thead tr { 
+		position: absolute;
+		top: -9999px;
+		left: -9999px;
+	}
+	
+	tr { border: 1px solid #ccc; }
+	
+	td { 
+		/* Behave  like a "row" */
+		border: none;
+		border-bottom: 1px solid #eee; 
+		position: relative;
+		padding-left: 50%;
+	}
+	
+	td:before { 
+		/* Now like a table header */
+		position: absolute;
+		/* Top/left values mimic padding */
+		/* top: 6px; */
+		left: 6px;
+		width: 45%; 
+		padding-right: 10px; 
+		white-space: nowrap;
+		    margin-left: 20px;
+	}
+	
+	/*
+	Label the data
+	*/
+	td:nth-of-type(1):before { content: "ID"; }
+	td:nth-of-type(2):before { content: "Name"; }
+	td:nth-of-type(3):before { content: "Phone"; }
+	td:nth-of-type(4):before { content: "Email"; }
+	td:nth-of-type(5):before { content: "Status"; }
+	td:nth-of-type(6):before { content: "Submitted"; }
+	td:nth-of-type(7):before { content: "Modify"; }
+}
+
+
+@media screen and (max-width: 500px) {
+	
+td, th {padding: 7px 2px;}
+	    .customAction {padding: 0 5px;}
+.waves-effect {    font-size: .75em;}
+    h4 {    font-size: 1.5em;}
+    .modal {    width: 95%;}
+	.row .col.nopad {padding: 0;}
+		td { padding-left: 115px}
+		td:before {width: 90px; margin-left:0; }
+}
+
+@media screen and (max-width: 400px) {
+	.sorter {width: 100%; margin-top: 0px;     display: block;    clear: both;}
+	.container .row {margin: 0;}
+	.container {width: 100%;}
+}

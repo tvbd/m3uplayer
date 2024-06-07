@@ -1,0 +1,60 @@
+#EXTM3U
+#EXTINF:-1 tvg-logo="http://bdix.jw.lt/t20.png" group-title="UNIX",Star Sports1
+http://172.17.50.112/live/fifa2022/index.m3u8
+#EXTINF:-1 tvg-logo="http://bdix.jw.lt/t20.png" group-title="UNIX",Star Sports2
+http://172.17.50.112/live/antbd1001/index.m3u8
+
+
+
+
+#EXTINF:-1 tvg-logo="http://bdix.jw.lt/t20.png" group-title="11Plus",Star Sports1
+http://tv.11plus.live/live/tsports/index.m3u8
+#EXTINF:-1 tvg-logo="http://bdix.jw.lt/t20.png" group-title="11Plus",Star Sports2
+http://tv.11plus.live/live/stersports1hd/index.m3u8
+
+
+
+#EXTINF:-1 tvg-logo="http://bdix.jw.lt/t20.png" group-title="Other",Sky Main
+https://eu02.dmca.run/247-skymain/tracks-v1a1/mono.m3u8
+#EXTINF:-1 tvg-logo="http://bdix.jw.lt/t20.png" group-title="Other",Cricbuz
+https://karostream.tulix.tv/WillowTvHighBitrate/tracks-v1a1/mono.m3u8
+
+
+
+
+#EXTINF:-1 tvg-logo="http://bdix.jw.lt/t20.png" group-title="allinonereborn",Willow Extra
+http://allinonereborn.tech/allinone.php?id=55837
+#EXTINF:-1 tvg-logo="http://bdix.jw.lt/t20.png" group-title="allinonereborn",Astro Cricket HD
+http://allinonereborn.tech/allinone.php?id=51939
+
+
+#EXTINF:-1 tvg-logo="http://bdix.jw.lt/t20.png" group-title="allinonereborn",Sky Cricket HD
+http://sansat.net:88/live/02026339288465/02026339288465/102251.ts
+
+
+#EXTINF:-1 tvg-logo="http://bdix.jw.lt/t20.png" group-title="allinonereborn",Star 4K (Tataplay)
+https://allinonereborn.tech/doordarshan.m3u8?id=24069
+
+#EXTINF:-1 tvg-logo="http://bdix.jw.lt/t20.png" group-title="allinonereborn",Star 4K (Airtel)
+https://allinonereborn.tech/b1g.php?id=662136
+
+
+#EXTINF:-1 tvg-logo="http://bdix.jw.lt/t20.png" group-title="allinonereborn",Star Sports 1 En
+http://sansat.net:88/live/02026339288465/02026339288465/93724.ts
+#EXTINF:-1 tvg-logo="http://bdix.jw.lt/t20.png" group-title="allinonereborn",Star Sports 1 En
+http://allinonereborn.tech/allinone.php?id=57154
+#EXTINF:-1 tvg-logo="http://bdix.jw.lt/t20.png" group-title="allinonereborn",Star Sports 3
+http://sansat.net:88/live/02026339288465/02026339288465/93727.ts
+
+
+#EXTINF:-1 tvg-logo="https://images.toffeelive.com/images/program/300097/logo/240x240/mobile_logo_963886001717054413.png" group-title="Toffe",English VIP
+https://mprod-cdn.toffeelive.com/live/match-1/index.m3u8
+#EXTINF:-1 tvg-logo="" group-title="Toffe",Bangla
+#EXTINF:-1 tvg-logo="https://images.toffeelive.com/images/program/298434/logo/240x240/mobile_logo_191263001717126123.png" group-title="Toffe",Bangla
+https://mprod-cdn.toffeelive.com/live/match-2/index.m3u8
+
+#EXTINF:-1 tvg-logo="https://images.toffeelive.com/images/program/300097/logo/240x240/mobile_logo_963886001717054413.png" group-title="Toffe Nayeem",English
+https://the-nayeemparvez.xyz/tffe/live.m3u8?id=match-1
+
+#EXTINF:-1 tvg-logo="https://images.toffeelive.com/images/program/300097/logo/240x240/mobile_logo_963886001717054413.png" group-title="Toffe Nayeem",Bangla
+https://the-nayeemparvez.xyz/tffe/live.m3u8?id=match-2

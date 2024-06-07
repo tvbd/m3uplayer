@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Meta Tags -->
+    <meta charset="UTF-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1c1c1c" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="apple-touch-icon" href="icon.png">
+   <link href='favicon.ico' rel='icon' type='image/x-icon'/>
+    <!-- Stylesheets -->
+    <link href="https://vjs.zencdn.net/8.14.0/video-js.css" rel="stylesheet">
+    <!-- Polyfills and Libraries -->
+    <script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
+    <title>M3U Player-Videojs</title>
+    <!-- Custom Styles -->
+    <style>
+	    * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #1c1c1c;
+    color: #fff;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #1c1c1c;
+    color: #fff;
+    padding: 10px;
+    z-index: 1000;
+}
+
+header h1 {
+    font-size: 18px;
+    margin: 0;
+    text-align: center;
+}
+
+#channel-container {
+    margin: auto;
+    width: 80%;
+    padding: 10px;
+    margin-top: 440px;
+}
+
+#container {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    list-style: none;
+}
+
+.channel-card {
+    padding: 8px;
+    vertical-align: top;
+}
+
+.channel-card img {
+    width: 100px;
+    height: 100px;
+    border-radius: 5%;
+    background-color: #28292c;
+}
+
+.channel-card h2 {
+    text-align: center;
+    color: white;
+    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+    font-size: 12px;
+    width: 100px;
+}
+
+.channel-card p {
+    text-align: center;
+    color: lightgrey;
+    font-size: 10px;
+}
+
+#filter-dropdown {
+    position: fixed;
+    top: 50px;
+    right: 20px;
+    z-index: 1000;
+}
+
+#core-controls,
+#controls {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    list-style: none;
+}
+
+#core-controls label,
+#controls label {
+    margin-right: 10px;
+}
+
+#core-controls select,
+#controls input[type="text"],
+#controls select {
+    padding: 5px;
+    font-size: 12px;
+    border-radius: 5px;
+    border: none;
+    background-color: #2c2c2c;
+    color: #fff;
+    width: 100px;
+    height: 20px;
+    text-align: left;
+}
+
+#controls h3 {
+    padding: 5px;
+    font-size: 12px;
+    border-radius: 5px;
+    border: none;
+    color: #fff;
+    width: auto;
+    height: 20px;
+    text-align: center;
+}
+
+#player-wrapper {
+    margin-top: 10px;
+}
+
+#my-video {
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+    height: 400px;
+    /* Added 'px' unit */
+}
+
+.video-js .vjs-big-play-button {
+    top: 50%;
+    left: 50%;
+    border: 1px solid #1c1c1c;
+    border-radius: 15px;
+    padding: 5px;
+    background-color: #28292c;
+}
+
+.vjs-poster {
+    display: none;
+}
+
+.channel-card img.selected {
+    border: 3px solid red;
+}
+
+@media only screen and (max-width: 600px) {
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #1c1c1c;
+        color: #fff;
+    }
+
+    header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: #1c1c1c;
+        color: #fff;
+        padding: 10px;
+        z-index: 1000;
+    }
+
+    header h1 {
+        font-size: 18px;
+        margin: 0;
+        text-align: center;
+    }
+
+    #channel-container {
+        margin: auto;
+        width: 100%;
+        padding: 10px;
+        margin-top: 235px;
+    }
+
+    #container {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        list-style: none;
+    }
+
+    .channel-card {
+        padding: 8px;
+        vertical-align: top;
+    }
+
+    .channel-card img {
+        width: 100px;
+        height: 100px;
+        border-radius: 5%;
+        background-color: #28292c;
+    }
+
+    .channel-card h2 {
+        text-align: center;
+        color: white;
+        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+        font-size: 12px;
+        width: 100px;
+    }
+
+    .channel-card p {
+        text-align: center;
+        color: lightgrey;
+        font-size: 10px;
+    }
+
+    #filter-dropdown {
+        position: fixed;
+        top: 50px;
+        right: 20px;
+        z-index: 1000;
+    }
+
+    #core-controls,
+    #controls {
+        position: absolute;
+        left: 0px;
+        right: 0px;
+        top: 210px;
+        background-color: #1c1c1c;
+        padding: 7px;
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        list-style: none;
+    }
+
+    #core-controls label,
+    #controls label {
+        margin-right: 10px;
+    }
+
+    #core-controls select,
+    #controls input[type="text"],
+    #controls select {
+        padding: 5px;
+        font-size: 12px;
+        border-radius: 5px;
+        border: none;
+        background-color: #2c2c2c;
+        color: #fff;
+        width: 100px;
+        height: 20px;
+        text-align: left;
+    }
+
+    #controls h3 {
+        padding: 5px;
+        font-size: 12px;
+        border-radius: 5px;
+        border: none;
+        color: #fff;
+        width: auto;
+        height: 20px;
+        text-align: center;
+    }
+
+    #player-wrapper {
+        margin-top: 10px;
+    }
+
+    #my-video {
+        position: absolute;
+        display: block;
+        background-color: #1c1c1c;
+        left: 0px;
+        right: 0px;
+        top: 0px;
+        margin: 0 auto;
+        width: 100%;
+        height: 220px;
+        /* Added 'px' unit */
+    }
+
+    .video-js .vjs-big-play-button {
+        top: 50%;
+        left: 50%;
+        border: 1px solid #1c1c1c;
+        border-radius: 15px;
+        padding: 5px;
+        background-color: #28292c;
+    }
+
+    .vjs-tech {
+        object-fit: fill;
+    }
+
+    .channel-card img.selected {
+        border: 3px solid red;
+        font-size: 14px;
+    }
+}
+    </style>  
+</head>
+
+<body>
+    <!-- Header -->
+    <header>
+        <div id="player-wrapper">
+            <video id="my-video" class="video-js" controls playsinline preload="auto" poster="" data-setup="{}">
+                <source src="https://stream.skynewsarabia.com/hls/sna.m3u8" type="application/x-mpegURL">
+                <p class="vjs-no-js">
+                    To view this video please enable JavaScript, and consider upgrading to a
+                    web browser that
+                    <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+                </p>
+            </video>
+        </div>
+        <div id="controls">
+            <h3 id="total-channels">...</h3>
+            &nbsp;
+            <select id="group-title-filter">
+                <option value="">All</option>
+            </select>
+            &nbsp;&nbsp;
+            <input type="text" id="search-input" placeholder="Enter a keyword">
+        </div>
+    </header>
+    <!-- The element where the channel list -->
+	
+	  <script>
+function getParam ( sname )
+{
+  var params = location.search.substr(location.search.indexOf("?")+1);
+  var sval =  params.replace("sv=", "");
+  
+  return sval;
+}
+var sv = getParam("sv");
+
+</script>
+<script>
+  var responseText = ''+sv+'';
+  urlArry = responseText.split(',');
+  start = true;
+  num_of_urlArry = urlArry.length;
+  index_of_urlArry = 0;
+</script>
+	
+	
+	
+	
+    <div id="channel-container">
+        <ul id="container"></ul>
+    </div>
+    <!-- Scripts -->
+    <script src="https://vjs.zencdn.net/8.14.0/video.min.js"></script>
+    <script>
+	    $(document).ready(function() {
+    let channels = []; // Initialize channels array
+
+    // Fetch channel list via AJAX request
+    $.ajax({
+
+        type: "GET",
+        url: ''+sv+'',
+        success: function(message, text, response) {
+                let str = message;
+                let array = str.split("\n");
+                channels = [];
+
+                // Parse channel list
+                array.forEach(function(line) {
+                    if (line.startsWith("#EXTINF:")) {
+                        let tvgLogo = line.match(/tvg-logo="([^"]+)"/);
+                        let groupTitle = line.match(/group-title="([^"]+)"/);
+                        if (tvgLogo && tvgLogo.length > 1) {
+                            let channel = {
+                                name: line.split(",")[1],
+                                groupTitle: groupTitle ? groupTitle[1] : "",
+                                url: "",
+                                image: tvgLogo[1]
+                            }
+
+                            ;
+                            channels.push(channel);
+                        }
+                    } else if (line.startsWith("http")) {
+                        channels[channels.length - 1].url = line;
+                    }
+                });
+
+                // Render channels initially
+                renderChannels(channels);
+
+                // Populate filter dropdown with unique group titles
+                populateFilterDropdown(channels);
+
+                // Update total channels count
+                updateTotalChannelsCount(channels);
+            }
+
+            ,
+        error: function(xhr, status, error) {
+            console.error("Error fetching channel list:", error);
+        }
+    });
+
+    // Function to render channels
+    function renderChannels(channels) {
+        // Clear previous channels
+        $("#container").empty();
+
+        // Append channels to the container
+        channels.forEach(function(channel) {
+            let card = $("<div class='channel-card'><img src='" + channel.image + "'><h2>" + channel.name + "</h2><p>" + channel.groupTitle + "</p></div>");
+
+            $("#container").append("<li data-url='" + channel.url + "'></li>").find("li").last().append(card);
+        });
+    }
+
+    // Event listener for clicking on a channel
+    $("#container").on('click', 'li', function() {
+        // Remove the class from previously selected channel image
+        $('#container li img.selected').removeClass('selected');
+        // Add the class to the clicked channel image
+        $(this).find('img').addClass('selected');
+
+
+        // Get the URL of the channel from the clicked <li> element
+        var channelUrl = $(this).data('url');
+
+        // Create a video player instance
+        var player = videojs(document.querySelector('#my-video'));
+
+        // Set the video source and type
+        player.src({
+            src: channelUrl,
+            type: 'application/x-mpegURL'
+        });
+
+        // Start playing the video
+        player.play();
+    });
+
+    // Event listener for search input
+    $("#search-input").on('input', function() {
+        const searchText = $(this).val();
+        const groupTitle = $("#group-title-filter").val();
+        filterChannels(searchText, groupTitle);
+    });
+
+    // Event listener for filter dropdown change
+    $("#group-title-filter").on('change', function() {
+        const groupTitle = $(this).val();
+        const searchText = $("#search-input").val();
+        filterChannels(searchText, groupTitle);
+    });
+
+    // Function to populate filter dropdown with unique group titles
+    function populateFilterDropdown(channels) {
+        const uniqueGroupTitles = [...new Set(channels.map(channel => channel.groupTitle))];
+        const dropdown = $("#group-title-filter");
+
+        uniqueGroupTitles.forEach(title => {
+            dropdown.append(`<option value="${title}" >${title}</option>`);
+        });
+    }
+
+    $(document).ready(function() {
+        // Other code...
+
+        // Event listener for clicking on a channel
+        $("#container").on('click', 'li', function() {
+            // Get the name of the channel from the clicked <li> element
+            var channelName = $(this).find('h2').text();
+
+            // Update the title of the webpage to the name of the channel
+            document.title = channelName;
+
+            // Other code...
+        });
+
+        // Other code...
+    });
+
+    // Function to filter channels based on search input and group title
+    function filterChannels(searchText, groupTitle) {
+        const filteredChannels = channels.filter(channel => {
+            const nameMatch = channel.name.toLowerCase().includes(searchText.toLowerCase());
+            const groupTitleMatch = groupTitle === "" || channel.groupTitle.toLowerCase() === groupTitle.toLowerCase();
+            return nameMatch && groupTitleMatch;
+        });
+        renderChannels(filteredChannels);
+        // Update total channels count
+        updateTotalChannelsCount(filteredChannels);
+    }
+
+    // Function to update total channels count
+    function updateTotalChannelsCount(channels) {
+        document.getElementById('total-channels').textContent = `${channels.length}`;
+    }
+});
+    </script>
+</body>
+
+</html>
