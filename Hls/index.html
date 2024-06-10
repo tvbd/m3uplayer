@@ -4,14 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://adsreference.com/widget.js?id=1715060516324607500" defer="defer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/devtools-detector/2.0.17/devtools-detector.js"></script>
     <script src="js/devtoolsdetetctor.js" preload></script>
     <script src="js/nocheats.js" preload></script>
     <link rel="preload stylesheet" href="css/flash.css" as="style">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/kursor/dist/kursor.css">
-    <script src="https://cdn.jsdelivr.net/npm/@simondmc/popup-js@1.4.3/popup.min.js"></script>
      <title>M3U Player -Hls</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <style>
@@ -223,19 +220,9 @@
 
 <body>
 
-    <script>
-        document.getElementById('viewsFrame').onload = function() {
-            var iframeDoc = document.getElementById('viewsFrame').contentDocument || document.getElementById('viewsFrame').contentWindow.document;
-            var viewsCounter = iframeDoc.querySelector('script[src*="freevisitorcounters.com"]');
-            if (viewsCounter) {
-                document.getElementById('viewsCount').innerText = 'Total Views: (Check views.html)';
-            } else {
-                document.getElementById('viewsCount').innerText = 'Failed to load view counter.';
-            }
-        };
-    </script>
+ 
     <div class="header">
-        <a href="../">
+        <a href="#">
             <img src="header.png" alt="Banner">
         </a>
     </div>
@@ -255,12 +242,12 @@
         </div>
         <div class="player" id="player">
             <video id="video-player" class="custom-video" controls></video>
-            <iframe id="custom-iframe" class="custom-video" style="display: none;" allowfullscreen></iframe>
+            <!--iframe id="custom-iframe" class="custom-video" style="display: none;" allowfullscreen></iframe-->
             <div class="custom-loader" id="custom-loader"></div>
         </div>
     </div>
     <div class="footer">
-        <a class="link" href="../">© 2024 TVBD</a>
+        <a class="link" href="#">© 2024 TVBD</a>
     </div>
 
   <script>
@@ -288,10 +275,10 @@ var sv = getParam("sv");
     <script>
         let channels = [];
         let favoriteChannels = JSON.parse(localStorage.getItem('favoriteChannels')) || [];
-        let creatorChoiceChannels = [
+      /*  let creatorChoiceChannels = [
             { name: 'Link 1', url: '#', logo: 'default_logo.png' },
             { name: 'Link 2', url: '#', logo: 'default_logo.png' }
-        ];
+        ]; */
 
         async function loadChannels() {
             const response = await fetch(''+sv+'');
@@ -381,7 +368,7 @@ var sv = getParam("sv");
 
         function playChannel(url, name) {
             const videoPlayer = document.getElementById('video-player');
-            const customIframe = document.getElementById('custom-iframe');
+           // const customIframe = document.getElementById('custom-iframe');
 
             if (name === 'Link 1') {
                 customIframe.src = url;
