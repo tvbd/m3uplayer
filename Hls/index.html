@@ -235,14 +235,14 @@
             </div>
             <h3>Favorites</h3>
             <ul id="favorite-channels"></ul>
-            <!--h3>Creator Choice</h3>
-            <ul id="creator-choice-channels"></ul-->
+            <h3>Creator Choice</h3>
+            <ul id="creator-choice-channels"></ul>
             <h3>All Channels</h3>
             <ul id="all-channels"></ul>
         </div>
         <div class="player" id="player">
             <video id="video-player" class="custom-video" controls></video>
-            <!--iframe id="custom-iframe" class="custom-video" style="display: none;" allowfullscreen></iframe-->
+            <iframe id="custom-iframe" class="custom-video" style="display: none;" allowfullscreen></iframe>
             <div class="custom-loader" id="custom-loader"></div>
         </div>
     </div>
@@ -276,7 +276,7 @@ var sv = getParam("sv");
         let channels = [];
         let favoriteChannels = JSON.parse(localStorage.getItem('favoriteChannels')) || [];
         let creatorChoiceChannels = [
-            { name: 'Link 1', url: '#', logo: 'default_logo.png' },
+            { name: 'Link', url: '#', logo: 'default_logo.png' },
             { name: 'Link 2', url: '#', logo: 'default_logo.png' }
         ]; 
 
