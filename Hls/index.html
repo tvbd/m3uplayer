@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/devtools-detector/2.0.17/devtools-detector.js"></script>
+    <script src="js/devtoolsdetetctor.js" preload></script>
+    <script src="js/nocheats.js" preload></script>
+    <link rel="preload stylesheet" href="../css/flash.css" as="style">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/kursor/dist/kursor.css">
+    <script src="https://cdn.jsdelivr.net/npm/@simondmc/popup-js@1.4.3/popup.min.js"></script>
+    <title>M3U Player -Hls</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .header {
+            background-color: #1f1f1f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+        .header img {
+            width: 180px;
+            height: 70px;
+        }
+        .footer {
+            background-color: #1f1f1f;
+            padding: 10px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .footer a.link {
+                color: #ffffff;
+                text-decoration: underline;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        .menu {
+            width: 300px;
+            background-color: #1f1f1f;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            height: calc(100vh - 160px); /* Adjust for header and footer */
+            display: none;
+            flex-direction: column;
+        }
+        .menu h2 {
+            margin-top: 0;
+        }
+        .menu ul {
+            list-style: none;
+            padding: 0;
+        }
+        .menu ul li {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+        }
+        .menu ul li img {
+            width: 50px;
+            height: auto;
+            margin-right: 10px;
+            border-radius: 5px;
+        }
+        .menu ul li a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px;
+            display: block;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            flex: 1;
+        }
+        .menu ul li a:hover {
+            background-color: #333333;
+        }
+        .search-bar {
+            margin-bottom: 20px;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border-radius: 5px;
+            border: none;
+            background-color: #333333;
+            color: #ffffff;
+        }
+        .toggle-menu {
+            background-color: #333333;
+            color: #ffffff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            transition: opacity 0.3s;
+        }
+        .player {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: width 0.3s;
+            overflow: hidden;
+        }
+        .player video {
+            width: 100%;
+            height: 100%;
+            border: none;
+            max-height: 100vh;
+        }
+        .custom-controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.3s, opacity 0.3s;
+        }
+        .custom-controls button {
+            background: none;
+            border: none;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .player:hover .custom-controls {
+            visibility: visible;
+            opacity: 1;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f1f1f;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333333;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555555;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body>
+    <div class="header">
+        <img src="header.png" href="../" alt="Banner">
+    </div>
+    <button class="toggle-menu" onclick="toggleMenu()">Menu</button>
+    <div class="container">
+        <div class="menu" id="menu" onscroll="handleMenuScroll()">
+            <h2>Channels</h2>
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Search channels..." onkeyup="filterChannels()">
+            </div>
+            <ul id="channel-list"></ul>
+        </div>
+        <div class="player" id="player">
+            <video id="video-player" controls></video>
+        </div>
+    </div>
+    <div class="footer">
+        <a class="link" href="#">©2024 TVBD</a>
+    </div>
+
+  <script>
+function getParam ( sname )
+{
+  var params = location.search.substr(location.search.indexOf("?")+1);
+  var sval =  params.replace("sv=", "");
+  
+  return sval;
+}
+var sv = getParam("sv");
+
+</script>
+<script>
+  var responseText = ''+sv+'';
+  urlArry = responseText.split(',');
+  start = true;
+  num_of_urlArry = urlArry.length;
+  index_of_urlArry = 0;
+</script>
+
+
+    
+           
+         <script>
+        let channels = [];
+        let favoriteChannels = JSON.parse(localStorage.getItem('favoriteChannels')) || [];
+        let creatorChoiceChannels = [
+            { name: 'ICC T20 2024 1', url: '#', logo: 'creator_choice/T20.png' },
+            { name: 'ICC T20 2024 2', url: '#', logo: 'creator_choice/T20.png' }
+        ];
+
+        async function loadChannels() {
+            const response = await fetch(''+sv+'');
+            const m3uText = await response.text();
+            parseM3U(m3uText);
+        }
+
+        function parseM3U(m3uText) {
+            const lines = m3uText.split('\n');
+            let channelName = '';
+            let logoUrl = '';
+
+            lines.forEach(line => {
+                if (line.startsWith('#EXTINF')) {
+                    const nameMatch = line.match(/,(.+)/);
+                    const logoMatch = line.match(/tvg-logo="(.+?)"/);
+                    if (nameMatch) channelName = nameMatch[1];
+                    if (logoMatch) logoUrl = logoMatch[1];
+                } else if (line.startsWith('http')) {
+                    const channelUrl = line.trim();
+                    channels.push({ name: channelName, url: channelUrl, logo: logoUrl });
+                    channelName = '';
+                    logoUrl = '';
+                }
+            });
+
+            channels.sort((a, b) => a.name.localeCompare(b.name));
+            renderChannels();
+        }
+
+        function renderChannels() {
+            const allChannelsList = document.getElementById('all-channels');
+            const favoriteChannelsList = document.getElementById('favorite-channels');
+            const creatorChoiceChannelsList = document.getElementById('creator-choice-channels');
+
+            allChannelsList.innerHTML = '';
+            favoriteChannelsList.innerHTML = '';
+            creatorChoiceChannelsList.innerHTML = '';
+
+            channels.forEach(channel => {
+                if (!favoriteChannels.some(favChannel => favChannel.name === channel.name) &&
+                    !creatorChoiceChannels.some(creatorChannel => creatorChannel.name === channel.name)) {
+                    const li = createChannelListItem(channel, false);
+                    allChannelsList.appendChild(li);
+                }
+            });
+
+            favoriteChannels.forEach(channel => {
+                const li = createChannelListItem(channel, true);
+                favoriteChannelsList.appendChild(li);
+            });
+
+            creatorChoiceChannels.forEach(channel => {
+                const li = createChannelListItem(channel, false);
+                creatorChoiceChannelsList.appendChild(li);
+            });
+        }
+
+        function createChannelListItem(channel, isFavorite) {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            const img = document.createElement('img');
+            const favIcon = document.createElement('i');
+
+            a.textContent = channel.name;
+            a.href = '#';
+            a.onclick = (e) => {
+                e.preventDefault();
+                playChannel(channel.url, channel.name);
+            };
+
+            img.src = channel.logo || 'default_logo.png';  // Use a default logo if none is provided
+            img.alt = channel.name;
+
+            favIcon.className = isFavorite ? 'fas fa-star favorite' : 'far fa-star favorite';
+            favIcon.onclick = (e) => {
+                e.stopPropagation();
+                toggleFavorite(channel);
+            };
+
+            li.appendChild(img);
+            li.appendChild(a);
+            li.appendChild(favIcon);
+
+            return li;
+        }
+
+        function playChannel(url, name) {
+            const videoPlayer = document.getElementById('video-player');
+            const customIframe = document.getElementById('custom-iframe');
+
+            if (name === 'ICC T20 2024 1') {
+                customIframe.src = url;
+                customIframe.style.display = 'block';
+                videoPlayer.style.display = 'none';
+            } else {
+                if (Hls.isSupported()) {
+                    const hls = new Hls();
+                    hls.loadSource(url);
+                    hls.attachMedia(videoPlayer);
+                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                        videoPlayer.play();
+                    });
+                } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                    videoPlayer.src = url;
+                    videoPlayer.play();
+                }
+                videoPlayer.style.display = 'block';
+                customIframe.style.display = 'none';
+            }
+
+            const loader = document.getElementById('custom-loader');
+            loader.style.display = 'block';
+            videoPlayer.onloadeddata = () => loader.style.display = 'none';
+            customIframe.onload = () => loader.style.display = 'none';
+        }
+
+        function toggleFavorite(channel) {
+            const index = favoriteChannels.findIndex(favChannel => favChannel.name === channel.name);
+            if (index !== -1) {
+                favoriteChannels.splice(index, 1);
+            } else {
+                favoriteChannels.push(channel);
+            }
+            localStorage.setItem('favoriteChannels', JSON.stringify(favoriteChannels));
+            renderChannels();
+        }
+
+        function toggleMenu() {
+            const menu = document.getElementById('menu');
+            menu.style.display = menu.style.display === 'none' || menu.style.display === '' ? 'flex' : 'none';
+        }
+
+        function handleMenuScroll() {
+            const menu = document.getElementById('menu');
+            const toggleMenuBtn = document.querySelector('.toggle-menu');
+            toggleMenuBtn.style.opacity = menu.scrollTop === 0 ? '1' : '0';
+        }
+
+        function filterChannels() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const allChannelsList = document.getElementById('all-channels');
+            const creatorChoiceChannelsList = document.getElementById('creator-choice-channels');
+            allChannelsList.querySelectorAll('li').forEach(li => {
+                const channelName = li.querySelector('a').textContent.toLowerCase();
+                li.style.display = channelName.includes(searchTerm) ? '' : 'none';
+            });
+            creatorChoiceChannelsList.querySelectorAll('li').forEach(li => {
+                const channelName = li.querySelector('a').textContent.toLowerCase();
+                li.style.display = channelName.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        loadChannels();
+    </script>
+    <script src="js/logger.js"></script>
+    <script src="js/statistics.js"></script>
+    <script src="js/restrictedshortcut.js"></script>
+    <script src="js/blockIP.js"></script>
+    <script src="js/smoothscroll.js"></script>
+    <script src="js/blocker.js"></script>
+    <script src="js/popupblocker.js"></script>
+    <script src="js/popup.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/kursor@0.0.14/dist/kursor.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pace-js@latest/pace.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const storedCursor = localStorage.getItem("selectedCursor");
+            const cursorType = storedCursor ? parseInt(storedCursor) : 1;
+
+            new kursor({
+                type: cursorType
+            });
+        });
+    </script>
+   
+</body>
+</html>
