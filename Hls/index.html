@@ -275,10 +275,10 @@ var sv = getParam("sv");
     <script>
         let channels = [];
         let favoriteChannels = JSON.parse(localStorage.getItem('favoriteChannels')) || [];
-      /*  let creatorChoiceChannels = [
+        let creatorChoiceChannels = [
             { name: 'Link 1', url: '#', logo: 'default_logo.png' },
             { name: 'Link 2', url: '#', logo: 'default_logo.png' }
-        ]; */
+        ]; 
 
         async function loadChannels() {
             const response = await fetch(''+sv+'');
@@ -368,7 +368,7 @@ var sv = getParam("sv");
 
         function playChannel(url, name) {
             const videoPlayer = document.getElementById('video-player');
-           // const customIframe = document.getElementById('custom-iframe');
+            const customIframe = document.getElementById('custom-iframe');
 
             if (name === 'Link 1') {
                 customIframe.src = url;
