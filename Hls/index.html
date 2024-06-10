@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://adsreference.com/widget.js?id=1715060516324607500" defer="defer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/devtools-detector/2.0.17/devtools-detector.js"></script>
     <script src="js/devtoolsdetetctor.js" preload></script>
     <script src="js/nocheats.js" preload></script>
-    <link rel="preload stylesheet" href="../css/flash.css" as="style">
+    <link rel="preload stylesheet" href="css/flash.css" as="style">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/kursor/dist/kursor.css">
     <script src="https://cdn.jsdelivr.net/npm/@simondmc/popup-js@1.4.3/popup.min.js"></script>
-    <title>M3U Player -Hls</title>
+     <title>M3U Player -Hls</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <style>
         body {
@@ -23,6 +25,7 @@
             height: 100vh;
             overflow: hidden;
         }
+
         .header {
             background-color: #1f1f1f;
             display: flex;
@@ -30,20 +33,22 @@
             align-items: center;
             padding: 10px;
         }
+
         .header img {
             width: 180px;
             height: 70px;
         }
+
         .footer {
-            background-color: #1f1f1f;
+            background-color: #121212;
             padding: 10px;
             text-align: center;
             color: #ffffff;
         }
 
         .footer a.link {
-                color: #ffffff;
-                text-decoration: underline;
+            color: #ffffff;
+            text-decoration: underline;
         }
 
         .container {
@@ -51,34 +56,40 @@
             flex: 1;
             overflow: hidden;
         }
+
         .menu {
             width: 300px;
             background-color: #1f1f1f;
             padding: 20px;
             box-sizing: border-box;
             overflow-y: auto;
-            height: calc(100vh - 160px); /* Adjust for header and footer */
+            height: calc(100vh - 160px);
             display: none;
             flex-direction: column;
         }
+
         .menu h2 {
             margin-top: 0;
         }
+
         .menu ul {
             list-style: none;
             padding: 0;
         }
+
         .menu ul li {
             margin: 10px 0;
             display: flex;
             align-items: center;
         }
+
         .menu ul li img {
             width: 50px;
             height: auto;
             margin-right: 10px;
             border-radius: 5px;
         }
+
         .menu ul li a {
             color: #ffffff;
             text-decoration: none;
@@ -88,12 +99,20 @@
             transition: background-color 0.3s;
             flex: 1;
         }
+
         .menu ul li a:hover {
             background-color: #333333;
         }
+
+        .menu ul li .favorite {
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
         .search-bar {
             margin-bottom: 20px;
         }
+
         .search-bar input {
             width: 100%;
             padding: 10px;
@@ -103,6 +122,7 @@
             background-color: #333333;
             color: #ffffff;
         }
+
         .toggle-menu {
             background-color: #333333;
             color: #ffffff;
@@ -115,81 +135,132 @@
             z-index: 1001;
             transition: opacity 0.3s;
         }
+
         .player {
             flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: width 0.3s;
             overflow: hidden;
+            position: relative;
+            background: url('noneed.png') center center no-repeat;
+            background-size: contain;
         }
-        .player video {
+
+        .custom-video {
             width: 100%;
             height: 100%;
             border: none;
-            max-height: 100vh;
-        }
-        .custom-controls {
             position: absolute;
-            bottom: 10px;
-            left: 10px;
-            right: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 5px;
-            visibility: hidden;
-            opacity: 0;
-            transition: visibility 0.3s, opacity 0.3s;
+            object-fit: fill;
         }
-        .custom-controls button {
-            background: none;
-            border: none;
-            color: #ffffff;
-            cursor: pointer;
-            font-size: 16px;
+
+        .custom-loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 6px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 6px solid #ffffff;
+            width: 40px;
+            height: 40px;
+            -webkit-animation: spin 1s linear infinite;
+            animation: spin 1s linear infinite;
         }
-        .player:hover .custom-controls {
-            visibility: visible;
-            opacity: 1;
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
+
+        .custom-video::after {
+            content: "";
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 6px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 6px solid #ffffff;
+            animation: spin 1s linear infinite;
+            z-index: 1000;
+        }
+
         ::-webkit-scrollbar {
             width: 8px;
         }
+
         ::-webkit-scrollbar-track {
             background: #1f1f1f;
         }
+
         ::-webkit-scrollbar-thumb {
             background: #333333;
             border-radius: 10px;
         }
+
         ::-webkit-scrollbar-thumb:hover {
             background: #555555;
+        }
+
+        @media screen and (max-width: 768px) {
+            .header img {
+                margin-left: 90px;
+            }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
+
 <body>
+
+    <script>
+        document.getElementById('viewsFrame').onload = function() {
+            var iframeDoc = document.getElementById('viewsFrame').contentDocument || document.getElementById('viewsFrame').contentWindow.document;
+            var viewsCounter = iframeDoc.querySelector('script[src*="freevisitorcounters.com"]');
+            if (viewsCounter) {
+                document.getElementById('viewsCount').innerText = 'Total Views: (Check views.html)';
+            } else {
+                document.getElementById('viewsCount').innerText = 'Failed to load view counter.';
+            }
+        };
+    </script>
     <div class="header">
-        <img src="header.png" href="../" alt="Banner">
+        <a href="../">
+            <img src="header.png" alt="Banner">
+        </a>
     </div>
-    <button class="toggle-menu" onclick="toggleMenu()">Menu</button>
+    <button class="toggle-menu" onclick="toggleMenu()">Menu 🌟</button>
     <div class="container">
         <div class="menu" id="menu" onscroll="handleMenuScroll()">
-            <h2>Channels</h2>
+            <h2>Channels 📺</h2>
             <div class="search-bar">
-                <input type="text" id="search-input" placeholder="Search channels..." onkeyup="filterChannels()">
+                <input type="text" id="search-input" placeholder="Search channels... 🔎" onkeyup="filterChannels()">
             </div>
-            <ul id="channel-list"></ul>
+            <h3>Favorites</h3>
+            <ul id="favorite-channels"></ul>
+            <h3>Creator Choice</h3>
+            <ul id="creator-choice-channels"></ul>
+            <h3>All Channels</h3>
+            <ul id="all-channels"></ul>
         </div>
         <div class="player" id="player">
-            <video id="video-player" controls></video>
+            <video id="video-player" class="custom-video" controls></video>
+            <iframe id="custom-iframe" class="custom-video" style="display: none;" allowfullscreen></iframe>
+            <div class="custom-loader" id="custom-loader"></div>
         </div>
     </div>
     <div class="footer">
-        <a class="link" href="#">©2024 TVBD</a>
+        <a class="link" href="../">© 2024 TVBD</a>
     </div>
 
   <script>
@@ -212,14 +283,14 @@ var sv = getParam("sv");
 </script>
 
 
+
     
-           
-         <script>
+    <script>
         let channels = [];
         let favoriteChannels = JSON.parse(localStorage.getItem('favoriteChannels')) || [];
         let creatorChoiceChannels = [
-            { name: 'ICC T20 2024 1', url: '#', logo: 'creator_choice/T20.png' },
-            { name: 'ICC T20 2024 2', url: '#', logo: 'creator_choice/T20.png' }
+            { name: 'Link 1', url: '#', logo: 'default_logo.png' },
+            { name: 'Link 2', url: '#', logo: 'default_logo.png' }
         ];
 
         async function loadChannels() {
@@ -312,7 +383,7 @@ var sv = getParam("sv");
             const videoPlayer = document.getElementById('video-player');
             const customIframe = document.getElementById('custom-iframe');
 
-            if (name === 'ICC T20 2024 1') {
+            if (name === 'Link 1') {
                 customIframe.src = url;
                 customIframe.style.display = 'block';
                 videoPlayer.style.display = 'none';
@@ -376,26 +447,6 @@ var sv = getParam("sv");
 
         loadChannels();
     </script>
-    <script src="js/logger.js"></script>
-    <script src="js/statistics.js"></script>
-    <script src="js/restrictedshortcut.js"></script>
-    <script src="js/blockIP.js"></script>
-    <script src="js/smoothscroll.js"></script>
-    <script src="js/blocker.js"></script>
-    <script src="js/popupblocker.js"></script>
-    <script src="js/popup.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/kursor@0.0.14/dist/kursor.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/pace-js@latest/pace.min.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const storedCursor = localStorage.getItem("selectedCursor");
-            const cursorType = storedCursor ? parseInt(storedCursor) : 1;
-
-            new kursor({
-                type: cursorType
-            });
-        });
-    </script>
-   
 </body>
+
 </html>
