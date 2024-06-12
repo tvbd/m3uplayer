@@ -1,0 +1,448 @@
+body,
+ul,
+ol,
+li,
+dl,
+dt,
+dd,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+textarea,
+p {
+    margin: 0 auto;
+    padding: 0px;
+    list-style-type: none;
+}
+
+ul {
+    list-style: none;
+}
+
+img,
+a img {
+    border: none;
+}
+
+a {
+    text-decoration: none;
+    color: #000;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+.bodyCon08 {
+    background: none
+}
+
+.bodyCon08 .students {
+    margin: 0 auto;
+    width: auto;
+    position: relative;
+    display: table-cell;
+    vertical-align: middle;
+    height: 100vh;
+    background-color: #00000066;
+}
+
+#four_flash {
+    position: relative;
+    width: auto;
+    margin: 0 auto;
+}
+
+#four_flash .flashBg {
+    width: 100vw;
+    height: auto;
+    margin: 0 auto;
+    display: inline-table;
+}
+
+#four_flash .flashBg ul.mobile {
+    height: 280px;
+    left: 0;
+}
+
+#four_flash .flashBg ul.mobile li {
+    float: left;
+    width: 25%;
+    height: 100%;
+    opacity: 0.8;
+    padding-top: 40px;
+}
+
+#four_flash .flashBg ul.mobile li:hover {
+    color: #fff;
+}
+
+#four_flash .flashBg ul.mobile li img {
+    width: 140px;
+    height: 140px;
+    display: block;
+    margin: 0 auto;
+    border: 10px solid #dadce3;
+    border-radius: 82px;
+}
+
+#four_flash .flashBg ul.mobile li dd {
+    font-size: 20px;
+    width: 250px;
+    line-height: 60px;
+    text-align: center;
+    border-bottom: 1px solid #dadce3;
+    color: #ffffff;
+}
+
+#four_flash .flashBg ul.mobile li p {
+    font-size: 16px;
+    text-align: center;
+    width: 250px;
+    line-height: 24px;
+    margin-top: 10px;
+    color: #ffffff98;
+}
+
+
+/* This is switch css style start */
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input:checked+.slider {
+    background-color: #2196F3;
+}
+
+input:focus+.slider {
+    box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked+.slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+
+/* This is switch css style end */
+
+
+/* This is popupbox css style start */
+
+#popupbox,
+#logbox,
+#sourcebox,
+#infobox {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    visibility: hidden;
+    display: none;
+    background-color: rgba(22, 22, 22, 0.5);
+}
+
+#popupbox:target,
+#logbox:target,
+#sourcebox:target,
+#infobox:target {
+    visibility: visible;
+    display: block;
+}
+
+#logbox p,
+#infobox p {
+    padding-bottom: 10px;
+    word-break: break-word;
+}
+
+.scrollidbar,
+.scrollappbar {
+    text-align: left;
+    overflow-y: auto;
+    height: inherit;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+.circlescon {
+    display: flex;
+    padding-bottom: 5px;
+}
+
+.circlescon li {
+    width: 100%;
+    height: 50px;
+    text-align: center;
+    background-color: #fff;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.qrcode {
+    position: absolute;
+    background-color: ivory;
+    width: 50%;
+    height: 30%;
+    left: 24%;
+    display: none;
+}
+
+.circlescon li img {
+    width: 70%;
+    height: 50px;
+}
+
+.reveal-modal,
+.log-modal,
+.source-modal {
+    color: #fff;
+    background: #a3001b;
+    margin: 0 auto;
+    width: 250px;
+    height: 250px;
+    position: relative;
+    z-index: 41;
+    top: 35%;
+    padding: 10px;
+    text-align: center;
+    -webkit-box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+    opacity: 0.9;
+}
+
+.close-reveal-modal,
+.close-log-modal,
+.close-source-modal {
+    position: relative;
+    float: right;
+    color: #fff;
+}
+
+#selectform {
+    text-align: left;
+    font-size: 16px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+
+/* This is popupbox css style end */
+
+
+/* This is button css style start */
+
+button {
+    font-weight: 600;
+    border: solid 2px black;
+    outline: 0;
+    font-size: 1.5rem;
+    letter-spacing: 0.08rem;
+    background-color: white;
+    border-radius: 0.35rem;
+    position: relative;
+    cursor: pointer;
+    width: 90%;
+}
+
+button::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #a3001b;
+    z-index: -1;
+    border-radius: 0.35rem;
+    border: solid 2px black;
+    transition: all 0.3s ease-in-out;
+}
+
+button.stylebtn::after {
+    border: 0;
+    box-shadow: 0px 0px 0px 2px black;
+    top: 0.5rem;
+    left: 0.5rem;
+}
+
+button.stylebtn:hover {
+    color: white;
+    background-color: red;
+    border: 0;
+}
+
+button.stylebtn:hover::after {
+    background-color: white;
+    box-shadow: none;
+}
+
+
+/* This is button css style end */
+
+
+/* This is slidenav css style start */
+
+.sidenav {
+    height: 100%;
+    width: 400px;
+    position: fixed;
+    z-index: 999;
+    top: 0;
+    right: 0;
+    background-color: #111111;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 25px;
+    display: none;
+}
+
+.sidenav h3 {
+    text-align: center;
+    color: #fff;
+    font-size: 28px;
+    padding-bottom: 8px;
+}
+
+.sidenav div {
+    padding: 16px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+    display: flex;
+    justify-content: space-between;
+}
+
+.sidenav div:hover {
+    color: #f1f1f1;
+}
+
+.cachebtn {
+    width: 50%;
+    font-size: 1em;
+}
+
+.cachebtn:hover,
+.cachebtn a:hover {
+    color: #fff;
+    background-color: red;
+}
+
+.cachebtn:active,
+.cachebtn a:active {
+    color: #fff;
+    background-color: #a3001b;
+}
+
+#main {
+    transition: margin-right .5s;
+    padding: 16px;
+    position: absolute;
+    z-index: 999;
+    right: 0;
+}
+
+#main img {
+    opacity: 0.5;
+}
+
+#main img:hover {
+    opacity: 1;
+}
+
+@media screen and (max-width: 768px) {
+    .bodyCon08 .students {
+        width: 100vw !important;
+    }
+    #four_flash {
+        width: 100vw !important;
+    }
+    #four_flash .flashBg {
+        display: initial;
+    }
+    #four_flash .flashBg ul.mobile li {
+        margin-left: 0;
+        width: 100vw;
+        opacity: 0.8;
+    }
+    /* This is switch css style start */
+    .switch {
+        width: 50px;
+        height: 20px;
+    }
+    .cachebtn {
+        font-size: 1em;
+    }
+    .slider:before {
+        height: 15px;
+        width: 15px;
+        bottom: 3px;
+    }
+    /* This is switch css style end */
+    .sidenav {
+        padding-top: 15px;
+        width: 250px;
+    }
+    .sidenav div {
+        font-size: 18px;
+    }
+    .sidenav span {
+        float: left
+    }
+    .sidenav h3 {
+        font-size: 24px;
+        padding-bottom: 8px;
+    }
+}

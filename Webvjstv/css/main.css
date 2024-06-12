@@ -1,0 +1,498 @@
+html,
+body {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    background-color: #000009;
+}
+
+a {
+    color: black;
+    text-decoration: none;
+}
+
+div {
+    float: left;
+}
+
+h3 {
+    color: #fff;
+    text-align: center;
+    border-bottom: 1px solid #fff;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+ul {
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    cursor: pointer;
+    text-align: center;
+    border-bottom: 1px solid #fff;
+    margin-top: -16px;
+}
+
+.bd{
+    background-color: #ff8800;
+}
+
+li:hover {
+    background-color: #ff8800;
+}
+
+li a {
+    color: #fff;
+    text-decoration: none;
+}
+
+li p {
+    cursor: pointer;
+    color: #fff;
+    padding-top: 16px;
+}
+
+li p:hover {
+    color: #000;
+}
+
+input[type="button"] {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    background-color: #00000000;
+    border: none;
+    vertical-align: middle;
+    margin-right: 5px;
+    z-index: 1000;
+    cursor: pointer;
+}
+
+#left {
+    width: 20%;
+    outline: 1px solid #fff;
+    outline-offset: -1px;
+    background-color: #e62117;
+    opacity: 0.8;
+    display: block;
+    z-index: 998;
+    position: absolute;
+}
+
+.toggle {
+    position: absolute;
+    opacity: 0.5;
+    top: 10px;
+    z-index: 999;
+    width: 120px;
+    height: 55px;
+    background-image: url("../img/menubtn.png");
+    cursor: pointer;
+}
+
+.toggle:hover {
+    opacity: 1;
+}
+
+#menu {
+    overflow-x: hidden;
+    height: 100vh;
+}
+
+#search {
+    width: 100%;
+    margin-top: 21px;
+    margin-bottom: 5px;
+    border: none;
+    outline: none;
+    padding-inline-start: 10px;
+}
+
+#channelcontent {
+    overflow-x: hidden;
+}
+
+#right {
+    width: 80%;
+    height: 100%;
+}
+
+#menuicon {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    right: 20px;
+    top: 10px;
+    background: none;
+    z-index: 999;
+    background-image: url("../img/menuicon.png");
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+#player {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    right: 20px;
+    top: 60px;
+    background: #fff;
+    z-index: 999;
+    border-radius: 25px;
+    background-image: url("../img/link.jpg");
+    opacity: 0.5;
+    cursor: pointer;
+    color: #000;
+    display: none;
+}
+
+#prev {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    right: 20px;
+    top: 120px;
+    background: #fff;
+    z-index: 999;
+    border-radius: 25px;
+    background-image: url("../img/previous.jpg");
+    opacity: 0.5;
+    cursor: pointer;
+    color: #000;
+    display: none;
+}
+
+#github {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    right: 20px;
+    top: 180px;
+    background: #fff;
+    z-index: 999;
+    border-radius: 25px;
+    background-image: url("../img/github.jpg");
+    opacity: 0.5;
+    cursor: pointer;
+    color: #000;
+    display: none;
+}
+
+#favorite {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    right: 20px;
+    top: 240px;
+    background: #fff;
+    z-index: 999;
+    border-radius: 25px;
+    background-image: url("../img/documents.jpg");
+    opacity: 0.5;
+    cursor: pointer;
+    color: #000;
+    display: none;
+}
+
+#channelist {
+    position: absolute;
+    width: 200px;
+    height: 300px;
+    right: 100px;
+    top: 240px;
+    background: #e62117;
+    z-index: 1000;
+    opacity: 0.5;
+    color: #fff;
+    display: none;
+    overflow-y: auto;
+    text-align: center;
+    outline: 1px solid #fff;
+    outline-offset: -1px;
+}
+
+#shuffleplay {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    right: 20px;
+    top: 300px;
+    background: #fff;
+    z-index: 999;
+    border-radius: 25px;
+    background-image: url("../img/shuffleplay.png");
+    opacity: 0.5;
+    cursor: pointer;
+    color: #000;
+    display: none;
+}
+
+#epdetail {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    right: 20px;
+    top: 300px;
+    background: #fff;
+    z-index: 999;
+    border-radius: 25px;
+    background-image: url("../img/detail.png");
+    opacity: 0.5;
+    cursor: pointer;
+    color: #000;
+    display: none;
+    background-size: cover;
+}
+
+#epcontent {
+    position: absolute;
+    width: 200px;
+    height: 300px;
+    right: 100px;
+    top: 300px;
+    background: #e62117;
+    z-index: 1000;
+    opacity: 1;
+    color: #fff;
+    display: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+    outline: 1px solid #fff;
+    outline-offset: -1px;
+    word-break: break-all;
+}
+
+#epcontent p {
+    word-break: break-all;
+    text-align: left;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 14px;
+}
+
+#inputlink {
+    position: absolute;
+    right: 85px;
+    top: 65px;
+    height: 40px;
+    width: 320px;
+    background-color: #fff;
+    z-index: 998;
+    border: 0;
+    opacity: 0.6;
+    letter-spacing: 1px;
+    text-indent: 4px;
+    display: none;
+}
+
+#div1 {
+    width: 100vw;
+    height: 100%;
+    border-bottom: 1px solid #fff;
+}
+
+#div1 img {
+    position: absolute;
+    right: 150px;
+    top: 100px;
+}
+
+.vjs-paused .vjs-big-play-button,
+.vjs-paused.vjs-has-started .vjs-big-play-button {
+    display: block;
+}
+
+.video-js .vjs-big-play-button {
+    font-size: 2.5em;
+    line-height: 2.3em;
+    height: 2.5em;
+    width: 2.5em;
+    -webkit-border-radius: 2.5em;
+    -moz-border-radius: 2.5em;
+    border-radius: 2.5em;
+    background-color: #73859f;
+    background-color: rgba(115, 133, 159, .5);
+    border-width: 0.15em;
+}
+
+.video-js .vjs-time-control {
+    display: block;
+}
+
+.video-js .vjs-remaining-time {
+    display: none;
+}
+
+.video-js .vjs-tech {
+    position: relative !important;
+}
+
+.vjs-big-play-button .vjs-icon-placeholder {
+    font-size: 1.63em;
+}
+
+.vjs-loading-spinner {
+    font-size: 2.5em;
+    width: 2em;
+    height: 2em;
+    border-radius: 1em;
+    margin-top: -1em;
+    margin-left: -1.5em;
+}
+
+.video-js.vjs-playing .vjs-tech {
+    pointer-events: auto;
+}
+
+
+/*Comprehensive page css start*/
+
+#selectapi {
+    float: right;
+    width: 130px;
+    top: 20px;
+    right: 10px;
+    padding: 5px 35px 5px 5px;
+    font-size: 16px;
+    border: 1px solid #CCC;
+    height: 30px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    position: relative;
+    z-index: 998;
+    background: url("../img/change.svg") 96% / 15% no-repeat #EEE;
+}
+
+#root {
+    display: flex;
+    flex-direction: row;
+    margin: 0 auto;
+    margin-top: 40px;
+    width: 100%;
+}
+
+.itemContainer {
+    margin-left: 10px;
+    margin-right: 10px;
+    flex-direction: column;
+}
+
+.item {
+    width: 100%;
+    height: 50vh;
+    margin-bottom: 10px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.itemImg {
+    width: 100%;
+    height: 33vh;
+}
+
+.userInfo {
+    padding: 5px 10px;
+}
+
+.avatar {
+    vertical-align: middle;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+
+.username {
+    margin-left: 5px;
+    text-shadow: 2px 2px 2px rgba(0, 0, 0, .3);
+}
+
+
+/*Comprehensive page css end*/
+
+@media screen and (max-width: 1024px) {
+    #div1 img {
+        position: absolute;
+        right: 15px;
+        top: 175px;
+    }
+}
+
+@media screen and (max-width: 640px) {
+    h3 {
+        font-size: 14px;
+    }
+    li p {
+        font-size: 12px;
+    }
+    input[type="button"] {
+        width: 20px;
+        height: 20px;
+    }
+    #menuicon {
+        width: 25px;
+        height: 25px;
+        top: 20px;
+        background-size: 100%;
+    }
+    #player {
+        width: 25px;
+        height: 25px;
+        top: 50px;
+        background-size: 100%;
+    }
+    #prev {
+        width: 25px;
+        height: 25px;
+        top: 80px;
+        background-size: 100%;
+    }
+    #github {
+        width: 25px;
+        height: 25px;
+        top: 110px;
+        background-size: 100%;
+    }
+    #favorite {
+        width: 25px;
+        height: 25px;
+        top: 140px;
+        background-size: 100%;
+    }
+    #shuffleplay {
+        width: 25px;
+        height: 25px;
+        top: 170px;
+        background-size: 100%;
+    }
+    #epdetail {
+        width: 25px;
+        height: 25px;
+        top: 170px;
+        background-size: 100%;
+    }
+    #channelist {
+        right: 60px;
+        top: 140px;
+    }
+    #epcontent {
+        right: 60px;
+        top: 170px;
+    }
+    #inputlink {
+        width: 160px;
+        height: 30px;
+        top: 50px;
+        right: 60px;
+    }
+    #div1 img {
+        position: absolute;
+        width: 70%;
+        height: 55%;
+        right: 15px;
+        top: 100px;
+    }
+}
