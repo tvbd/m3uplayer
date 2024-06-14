@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
+  
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, minimal-ui">
+    <title>Clapper Online WebTV</title>
+    <meta name="description" content="TVBD Online webtv">
+    <meta name="author" content="TVBD Studio">
+    <meta name="referrer" content="safe-url">
+    <meta name="generator" content="TVBD Online webtv">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="TVBD webtv Online">
+    <meta property="og:description" content="Watch live tv on TVBD webtv">
+	<meta property="og:image" content="https://imgur.com/wqjuqHJ">    
+    <meta property="og:url" content="index.html">    
+	<meta property="twitter:card" content="summary_large_image">
+	<meta property="twitter:title" content="TVBD Online">
+    <meta property="twitter:description" content="TVBD Online">
+	<meta property="twitter:url" content="index.html">
+    <meta property="twitter:image" content="https://imgur.com/wqjuqHJ">
+	<meta itemprop="name" content="TVBD Online webtv">
+    <meta itemprop="description" content="Watch live tv on TVBD webtv">
+    <meta itemprop="image" content="https://imgur.com/wqjuqHJ">
+    <link rel="icon" href="https://imgur.com/WOxiSRI">
+    <link href="manifest.json" rel="manifest">
+    <meta name="msapplication-TileColor" content="#28324e">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="msapplication-config" content="browserconfig.xml">
+    <meta name="msapplication-TileImage" content="assets/images/touch/mstile-144x144.png">
+    <meta name="theme-color" content="#28324e">
+    <meta name="application-name" content="TVBD Online webtv">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="date=no">
+    <meta name="format-detection" content="email=no">
+    <meta name="format-detection" content="address=no">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-title" content="TVBD Online webtv">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="skype_toolbar" content="skype_toolbar_parser_compatible">
+    <link href="css/application.css" rel="stylesheet">
+	<style>
+	.zero-footer{
+max-width:1000px;
+margin:auto;           
+}
+
+.left {
+height: 80px; /* Should be removed. Only for demonstration */
+width: 250px;
+float:left;
+padding:10px;
+}
+
+.right {
+height: 80px; /* Should be removed. Only for demonstration */
+width: 100%;
+max-width: 100%;
+padding:30px;
+padding-left:280px;
+}
+
+	</style>
+    
+  </head>
+ <body>
+    <h1 class="hide">TVBD Online</h1>
+    <header class="header">
+      <div class="container">
+        <div class="header__content">
+						<div id="fh5co-logo">
+							<a href="#"><img  src="images/logo.png" alt="TVBD"></a>
+						</div>
+          <div class="header__search">
+            <input class="header__search-input" type="search" placeholder="Search..">
+	</div>
+        </div>
+        <nav class="header__menu">
+          <ul class="header__menu-list">
+            <li>
+              <button class="header__menu-item active" data-filter="*">All Channels</button>
+            </li>
+            <li>
+              <button class="header__menu-item" data-filter=".bangla">BD TV</button>
+            </li>
+            <li>
+              <button class="header__menu-item" data-filter=".hindi">INDIAN TV</button>
+            </li>
+            <li>
+              <button class="header__menu-item" data-filter=".urdu">PAKISTAN</button>
+            </li>
+			<li>
+              <button class="header__menu-item" data-filter=".english">WORLDWIDE</button>
+            </li>            
+          </ul>
+        </nav>
+      </div>
+    </header>
+	<center>
+	<br>
+
+</center>
+    <main>
+      <section class="channels">
+        <h2 class="hide">Channels</h2>
+        <div class="container">
+          <div class="channels__list"></div>
+        </div>
+      </section>
+    </main>
+    <div class="remodal modal" data-remodal-id="modal" data-remodal-options="hashTracking: false, closeOnOutsideClick: false">
+      <div class="modal__close" data-remodal-action="close">
+	          <svg class="modal__close-icon">
+          <use xlink:href="#icon-close"></use>
+        </svg>
+      </div>
+      <div class="modal__content" id="modal-content"></div>
+	      </div><svg xmlns="http://www.w3.org/2000/svg" class="hide">
+		  <symbol id="icon-link" viewBox="0 0 45 45">
+<path d="M11.6,16.35a12,12,0,0,1,18.54,1.84L25.93,22.4a6.35,6.35,0,0,0-7.19-3.65,6.24,6.24,0,0,0-3.06,1.68L7.61,28.5a6.28,6.28,0,0,0,8.89,8.89L19,34.9A16,16,0,0,0,26.07,36l-5.49,5.49A12.06,12.06,0,0,1,3.53,24.42ZM24.42,3.53,18.93,9A16,16,0,0,1,26,10.1L28.5,7.61a6.28,6.28,0,0,1,8.89,8.89l-8.07,8.07a6.3,6.3,0,0,1-8.89,0,6.69,6.69,0,0,1-1.36-2l-4.21,4.21a11.32,11.32,0,0,0,1.49,1.84,12,12,0,0,0,17.05,0l8.07-8.07a12.06,12.06,0,1,0-17-17.05Z"/>
+</symbol>
+<symbol id="icon-close" viewBox="0 0 15.642 15.642">
+<path d="M8.882,7.821l6.541-6.541c0.293-0.293,0.293-0.768,0-1.061  c-0.293-0.293-0.768-0.293-1.061,0L7.821,6.76L1.28,0.22c-0.293-0.293-0.768-0.293-1.061,0c-0.293,0.293-0.293,0.768,0,1.061  l6.541,6.541L0.22,14.362c-0.293,0.293-0.293,0.768,0,1.061c0.147,0.146,0.338,0.22,0.53,0.22s0.384-0.073,0.53-0.22l6.541-6.541  l6.541,6.541c0.147,0.146,0.338,0.22,0.53,0.22c0.192,0,0.384-0.073,0.53-0.22c0.293-0.293,0.293-0.768,0-1.061L8.882,7.821z"/>
+</symbol>
+<symbol id="icon-search" viewBox="0 0 56.966 56.966">
+<path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17s-17-7.626-17-17S14.61,6,23.984,6z"/>
+</symbol>
+</svg>
+
+<center>
+	<br>    
+ 
+<div id="container-62ff17327fa798be82effc0ee2fc04dc"></div>	
+ <br><br>
+</center>
+
+    <footer class="footer">
+	<div class="zero-footer">
+							<div class="left">
+							<a href="#"><img  src="img/footer.png" alt="TVBD"></a></div>
+							
+							<div class="right">
+						
+	    <p style="color:#fff">Copyright &#169; <script type='text/javascript'>var creditsyear = new Date();
+									                                    document.write(creditsyear.getFullYear()); </script> All Right Reserved.</p></div>
+      
+      </div>
+    </footer>
+    <script async defer src="js/application.js"></script>
+  </body>
+
+
+</html>	  
