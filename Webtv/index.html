@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebTV VJS</title>
+    
+    <link href="https://vjs.zencdn.net/7.18.1/video-js.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+        .video-container {
+            width: 80%;
+            max-width: 800px;
+            margin: 20px auto;
+        }
+        .channel-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            text-align: center;
+        }
+        .channel-list li {
+            display: inline-block;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .channel-list li img {
+            width: 50px;
+            height: auto;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            border: 2px solid #333;
+            transition: border-color 0.3s ease;
+        }
+        .channel-list li img:hover {
+            border-color: #fff;
+        }
+        #search-input {
+            margin-top: 10px;
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: none;
+            border-radius: 5px;
+            background-color: #333;
+            color: #ffffff;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <center>
+    <div class="video-container">
+        <video id="iptv-player" class="video-js vjs-default-skin" controls preload="auto" width="640" height="360">
+            <p class="vjs-no-js">
+                To view this video please enable JavaScript, and consider upgrading to a
+                web browser that
+                <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+            </p>
+        </video>
+    </center>
+    </div>
+    <input type="text" id="search-input" placeholder="Search channels...">
+    <ul class="channel-list" id="channel-list"></ul>
+    <!--it broke with dumocdn-->
+    <script src="https://vjs.zencdn.net/7.18.1/video.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/videojs-contrib-hls@5.15.0/dist/videojs-contrib-hls.min.js"></script>
+	
+	  <script>
+function getParam ( sname )
+{
+  var params = location.search.substr(location.search.indexOf("?")+1);
+  var sval =  params.replace("sv=", "");
+  
+  return sval;
+}
+var sv = getParam("sv");
+
+</script>
+<script>
+  var responseText = ''+sv+'';
+  urlArry = responseText.split(',');
+  start = true;
+  num_of_urlArry = urlArry.length;
+  index_of_urlArry = 0;
+</script>
+	
+	
+	
+	
+	
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var player = videojs('iptv-player');
+            var channelList = document.getElementById('channel-list');
+            var searchInput = document.getElementById('search-input');
+            var playlistURL = ''+sv+'';
+
+            fetch(playlistURL)
+                .then(response => response.text())
+                .then(data => {
+                    var lines = data.split('\n');
+                    var channels = [];
+                    var currentChannel = 0;
+
+                    lines.forEach(line => {
+                        if (line.startsWith('#EXTINF')) {
+                            var channelInfo = line.split(',')[1];
+                            var channelUrl = lines[currentChannel + 1];
+                            var tvgName = line.match(/tvg-name="([^"]*)"/)[1];
+                            var tvgLogo = line.match(/tvg-logo="([^"]*)"/)[1];
+                            channels.push({
+                                name: tvgName,
+                                url: channelUrl,
+                                image: tvgLogo
+                            });
+                        }
+                        currentChannel++;
+                    });
+
+                    channels.slice(0, 32).forEach(channel => {
+                        var listItem = document.createElement('li');
+                        var channelImage = document.createElement('img');
+                        channelImage.src = channel.image;
+                        listItem.appendChild(channelImage);
+                        listItem.appendChild(document.createElement('br'));
+                        listItem.innerHTML += channel.name;
+                        listItem.addEventListener('click', function() {
+                            player.src({
+                                src: channel.url,
+                                type: 'application/x-mpegURL'
+                            });
+                            player.play();
+                        });
+                        channelList.appendChild(listItem);
+                    });
+
+                    searchInput.addEventListener('input', function() {
+                        var searchTerm = this.value.trim().toLowerCase();
+                        channelList.innerHTML = '';
+                        var filteredChannels = channels.filter(channel =>
+                            channel.name.toLowerCase().includes(searchTerm)
+                        );
+                        filteredChannels.slice(0, 32).forEach(channel => {
+                            var listItem = document.createElement('li');
+                            var channelImage = document.createElement('img');
+                            channelImage.src = channel.image;
+                            listItem.appendChild(channelImage);
+                            listItem.appendChild(document.createElement('br'));
+                            listItem.innerHTML += channel.name;
+                            listItem.addEventListener('click', function() {
+                                player.src({
+                                    src: channel.url,
+                                    type: 'application/x-mpegURL'
+                                });
+                                player.play();
+                            });
+                            channelList.appendChild(listItem);
+                        });
+                    });
+                })
+                .catch(error => console.error('Error fetching playlist:', error));
+        });
+    </script>
+</body>
+</html>
