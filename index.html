@@ -144,7 +144,13 @@ background: linear-gradient(to right, #4A00E0, #8E2DE2); /* W3C, IE 10+/ Edge, F
 " >WebTv (VJS)</button>
 
 
+ <button  rel="stream" id="clickvjs2" type="button" class="btn" style="padding-left: 3rem; padding-right: 3rem; color: white; border-radius: 30px; background: #f7ff00;  /* fallback for old browsers */
 
+background: -webkit-linear-gradient(to right, #db36a4, #f7ff00);  /* Chrome 10-25, Safari 5.1-6 */
+
+background: linear-gradient(to right, #db36a4, #f7ff00); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+" >Webtv2 (VJS)</button>   
 
 	    
 
@@ -288,6 +294,12 @@ $(document).ready(function () {
   $("#clicknetflix").click(function () {
     window.location.href = "//raw.githack.com/tvbd/m3uplayer/main/Clappertv/index.html?sv=" + $("#link").val();
   });
+   $("#clickvjs2").click(function () {
+    window.location.href = "//raw.githack.com/tvbd/m3uplayer/main/Webtv/index.html?sv=" + $("#link").val();
+  });
+  
+  
+  
   $("#search").on('keyup', function () {
     var _0x4eb18d = $(this).val().toLowerCase();
     $(".col-sm-4").filter(function () {
@@ -301,7 +313,6 @@ $(document).ready(function () {
   });
 });
 </script>
-
 
 </body>
 
