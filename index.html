@@ -152,6 +152,19 @@ background: linear-gradient(to right, #db36a4, #f7ff00); /* W3C, IE 10+/ Edge, F
 
 " >Webtv2 (VJS)</button>   
 
+
+
+ <button  rel="stream" id="orbify" type="button" class="btn" style="padding-left: 3rem; padding-right: 3rem; color: white; border-radius: 30px; background: #f7ff00;  /* fallback for old browsers */
+
+background: -webkit-linear-gradient(to right, #db36a4, #f7ff00);  /* Chrome 10-25, Safari 5.1-6 */
+
+background: linear-gradient(to right, #db36a4, #f7ff00); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+" >Orbify (Clapper)</button>   
+
+
+
+
 	    
 
     </div>
@@ -296,6 +309,10 @@ $(document).ready(function () {
   });
    $("#clickvjs2").click(function () {
     window.location.href = "//raw.githack.com/tvbd/m3uplayer/main/Webtv/index.html?sv=" + $("#link").val();
+  });
+
+   $("#orbify").click(function () {
+    window.location.href = "//raw.githack.com/tvbd/m3uplayer/main/orbify/index.html?sv=" + $("#link").val();
   });
   
   
