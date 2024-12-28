@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oriby TV</title>
+    <link rel="icon" type="image/png" href="//i.ibb.co.com/T2hv9LX/1000023065.webp">
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<!-- CSS -->
+    <link rel="stylesheet" href="play.css">
+
+
+    
+    <!-- Media Players Support -->
+    <script src="//cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="//cdn.dashjs.org/latest/dash.all.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/shaka-player@latest/dist/shaka-player.compiled.js"></script>
+
+    <!-- Cross-Platform Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval'; img-src * data: blob:; media-src * blob:;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+ 
+</head>
+
+<body>
+    <div class="player-container">
+        <div class="video-wrapper">
+            <video id="videoPlayer" playsinline>
+                Your browser does not support the video tag.
+            </video>
+
+            <!-- Loading Spinner -->
+            <div class="video-loader">
+                <div class="loader-spinner"></div>
+                <div class="loader-text">Loading...</div>
+            </div>
+
+            <!-- Warning Message -->
+            <div class="video-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="warning-text">This channel is currently unavailable</div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <button class="control-button play-pause" title="Play/Pause">
+                    <i class="fas fa-play"></i>
+                </button>
+                
+                <button class="control-button prev-btn" title="Previous Channel">
+                    <i class="fas fa-step-backward"></i>
+                </button>
+
+                <button class="control-button next-btn" title="Next Channel">
+                    <i class="fas fa-step-forward"></i>
+                </button>
+                
+                <div class="volume-container">
+                    <button class="control-button volume" title="Mute/Unmute">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                    <input type="range" class="volume-slider" min="0" max="100" value="100">
+                </div>
+
+                <button class="control-button channels-btn" title="All Channels">
+                    <i class="fas fa-server"></i>
+                </button>
+
+                <button class="control-button search-btn" title="Search Channels">
+                    <i class="fas fa-search"></i>
+                </button>
+
+                <button class="control-button pip-btn" title="Picture in Picture">
+                    <i class="fas fa-clone"></i>
+                </button>
+
+                <button class="control-button cast-btn" title="Cast">
+                    <i class="fas fa-cast"></i>
+                </button>
+
+                <button class="control-button info-btn" title="Information">
+                    <i class="fas fa-info-circle"></i>
+                </button>
+
+                <button class="control-button fullscreen" title="Fullscreen">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+
+            <!-- Channels Panel -->
+            <div class="channels-panel">
+                <div class="channel-list">
+                    <!-- Channels will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Search Panel -->
+            <div class="search-panel">
+                <div class="search-container">
+                    <div class="search-box">
+                        <input type="text" class="search-input" placeholder="Search channel by name or number...">
+                        <button class="search-close">&times;</button>
+                    </div>
+                    <div class="search-results">
+                        <!-- Search results will appear here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Panel -->
+            <div class="info-popup">
+                <button class="close-popup">&times;</button>
+                <div class="info-content">
+                    <h3>Professional m3u TV</h3>
+                    <p>Version: 1.0.5</p>
+                    <p>A professional IPTV player with enhanced features for live streaming, channel management, and advanced playback controls.</p>
+                    
+                    <h4>Features</h4>
+                    <ul>
+                        <li>Enhanced Live TV Streaming</li>
+                        <li>Cross-Platform Compatibility</li>
+                        <li>Smart Channel Management</li>
+                        <li>Real-time Channel Search</li>
+                        <li>Picture in Picture Mode</li>
+                        <li>Chromecast Support</li>
+                        <li>Advanced Controls</li>
+                        <li>Optimized Performance</li>
+                        <li>Adaptive Streaming</li>
+                        <li>Multi-Device Support</li>
+                    </ul>
+
+                    <h4>Updates in v1.0.5</h4>
+                    <ul>
+                        <li>Enhanced Cross-Platform Support</li>
+                        <li>Improved Streaming Performance</li>
+                        <li>Smart Error Recovery</li>
+                        <li>Better Mobile Experience</li>
+                        <li>Android TV Optimization</li>
+                        <li>Advanced Buffering System</li>
+                    </ul>
+
+                    <h4>Developer</h4>
+                    <p>Developed by: TVBD</p>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+function getParam ( sname )
+{
+  var params = location.search.substr(location.search.indexOf("?")+1);
+  var sval =  params.replace("sv=", "");
+  
+  return sval;
+}
+var sv = getParam("sv");
+
+</script>
+<script>
+  var responseText = ''+sv+'';
+  urlArry = responseText.split(',');
+  start = true;
+  num_of_urlArry = urlArry.length;
+  index_of_urlArry = 0;
+</script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize variables
+            const video = document.getElementById('videoPlayer');
+            const playPauseBtn = document.querySelector('.play-pause');
+            const volumeBtn = document.querySelector('.volume');
+            const volumeSlider = document.querySelector('.volume-slider');
+            const channelsBtn = document.querySelector('.channels-btn');
+            const channelsPanel = document.querySelector('.channels-panel');
+            const channelList = document.querySelector('.channel-list');
+            const fullscreenBtn = document.querySelector('.fullscreen');
+            const prevBtn = document.querySelector('.prev-btn');
+            const nextBtn = document.querySelector('.next-btn');
+            const searchBtn = document.querySelector('.search-btn');
+            const searchPanel = document.querySelector('.search-panel');
+            const searchInput = document.querySelector('.search-input');
+            const searchClose = document.querySelector('.search-close');
+            const searchResults = document.querySelector('.search-results');
+            const pipBtn = document.querySelector('.pip-btn');
+            const castBtn = document.querySelector('.cast-btn');
+            const infoBtn = document.querySelector('.info-btn');
+            const infoPopup = document.querySelector('.info-popup');
+            const closePopup = document.querySelector('.close-popup');
+            const videoLoader = document.querySelector('.video-loader');
+            const videoWarning = document.querySelector('.video-warning');
+            const controls = document.querySelector('.controls');
+
+            let currentChannelIndex = 0;
+            let lastVolume = 1;
+            let isTouch = 'ontouchstart' in window;
+            let controlsTimeout;
+            let currentPlayer = null;
+
+            // Platform detection
+            const platform = {
+                isAndroidTV: navigator.userAgent.toLowerCase().indexOf('android tv') > -1,
+                isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+                isDesktop: !(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
+            };
+
+            // Initialize appropriate player based on platform and format
+            function initializePlayer(url) {
+                destroyCurrentPlayer();
+                
+                if (url.includes('.m3u8')) {
+                    initHLSPlayer(url);
+                } else if (url.includes('.mpd')) {
+                    initDASHPlayer(url);
+                } else {
+                    initDirectPlayer(url);
+                }
+            }
+
+            function destroyCurrentPlayer() {
+                if (currentPlayer) {
+                    if (currentPlayer.destroy) currentPlayer.destroy();
+                    if (currentPlayer.reset) currentPlayer.reset();
+                    currentPlayer = null;
+                }
+                video.src = '';
+                video.load();
+            }
+
+            // HLS Player initialization
+            function initHLSPlayer(url) {
+                if (Hls.isSupported()) {
+                    const hls = new Hls({
+                        debug: false,
+                        enableWorker: true,
+                        lowLatencyMode: true,
+                        backBufferLength: 90,
+                        maxBufferLength: 30,
+                        maxMaxBufferLength: 600,
+                        maxBufferSize: 60 * 1000 * 1000,
+                        maxBufferHole: 0.5,
+                        highBufferWatchdogPeriod: 2,
+                        nudgeOffset: 0.1,
+                        nudgeMaxRetry: 3,
+                        maxFragLookUpTolerance: 0.25,
+                        liveSyncDurationCount: 3,
+                        liveMaxLatencyDurationCount: 10,
+                        enableWebVTT: false,
+                        enableCEA708Captions: false,
+                        stretchShortVideoTrack: false,
+                        maxAudioFramesDrift: 1,
+                        forceKeyFrameOnDiscontinuity: true,
+                        abrEwmaFastLive: 3.0,
+                        abrEwmaSlowLive: 9.0,
+                        abrEwmaFastVoD: 3.0,
+                        abrEwmaSlowVoD: 9.0,
+                        abrBandWidthFactor: 0.95,
+                        abrBandWidthUpFactor: 0.7,
+                        abrMaxWithRealBitrate: false,
+                        maxStarvationDelay: 4,
+                        maxLoadingDelay: 4,
+                        minAutoBitrate: 0,
+                        fragmentLoadingTimeOut: 20000,
+                        manifestLoadingTimeOut: 10000,
+                        levelLoadingTimeOut: 10000,
+                        fragLoadingMaxRetry: 6,
+                        manifestLoadingMaxRetry: 6,
+                        levelLoadingMaxRetry: 6,
+                    });
+
+                    currentPlayer = hls;
+                    hls.loadSource(url);
+                    hls.attachMedia(video);
+
+                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                        playVideo();
+                    });
+
+                    hls.on(Hls.Events.ERROR, (event, data) => {
+                        if (data.fatal) {
+                            switch (data.type) {
+                                case Hls.ErrorTypes.NETWORK_ERROR:
+                                    hls.startLoad();
+                                    break;
+                                case Hls.ErrorTypes.MEDIA_ERROR:
+                                    hls.recoverMediaError();
+                                    break;
+                                default:
+                                    destroyCurrentPlayer();
+                                    showError('Stream error. Retrying...');
+                                    setTimeout(() => initializePlayer(url), 2000);
+                                    break;
+                            }
+                        }
+                    });
+                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    initDirectPlayer(url);
+                } else {
+                    showError('HLS playback not supported');
+                }
+            }
+
+            // DASH Player initialization
+            function initDASHPlayer(url) {
+                if (platform.isAndroidTV && window.shaka) {
+                    const player = new shaka.Player(video);
+                    currentPlayer = player;
+                    
+                    player.configure({
+                        streaming: {
+                            bufferingGoal: 30,
+                            rebufferingGoal: 15,
+                            bufferBehind: 30,
+                            lowLatencyMode: true
+                        }
+                    });
+
+                    player.load(url).then(() => {
+                        playVideo();
+                    }).catch(error => {
+                        console.error('Error loading DASH content:', error);
+                        showError('Stream error');
+                    });
+                } else if (window.dashjs) {
+                    const player = dashjs.MediaPlayer().create();
+                    currentPlayer = player;
+                    
+                    player.initialize(video, url, true);
+                    player.updateSettings({
+                        'streaming': {
+                            'lowLatencyEnabled': true,
+                            'abr': {
+                                'useDefaultABRRules': true,
+                                'ABRStrategy': 'abrDynamic'
+                            }
+                        }
+                    });
+                } else {
+                    showError('DASH playback not supported');
+                }
+            }
+
+            // Direct player initialization
+            function initDirectPlayer(url) {
+                video.src = url;
+                video.load();
+                playVideo();
+            }
+
+            function playVideo() {
+                video.play().catch(error => {
+                    console.warn('Autoplay prevented:', error);
+                    showPlayButton();
+                });
+            }
+
+            function showPlayButton() {
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            }
+
+            function showError(message = 'Stream unavailable') {
+                videoLoader.classList.remove('show');
+                videoWarning.querySelector('.warning-text').textContent = message;
+                videoWarning.classList.add('show');
+                setTimeout(() => {
+                    videoWarning.classList.remove('show');
+                }, 3000);
+            }
+
+            // Channel loading and management
+            async function loadChannels() {
+                try {
+                    videoLoader.classList.add('show');
+                    const response = await fetch(''+sv+'');
+                    
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    
+                    const data = await response.text();
+                    const channels = parseM3U(data);
+                    
+                    if (channels.length === 0) throw new Error('No channels found');
+                    
+                    displayChannels(channels);
+                    videoLoader.classList.remove('show');
+                } catch (error) {
+                    console.error('Channel loading error:', error);
+                    showError('Error loading channels');
+                }
+            }
+
+            function parseM3U(content) {
+                const channels = [];
+                const lines = content.split('\n');
+                let currentChannel = {};
+
+                lines.forEach(line => {
+                    line = line.trim();
+                    if (line.startsWith('#EXTINF:')) {
+                        const nameMatch = line.match(/,(.+)$/);
+                        if (nameMatch) {
+                            currentChannel.name = nameMatch[1].trim();
+                        }
+                    } else if (line.startsWith('http')) {
+                        currentChannel.url = line;
+                        channels.push({...currentChannel});
+                        currentChannel = {};
+                    }
+                });
+
+                return channels;
+            }
+
+            function displayChannels(channels) {
+                channelList.innerHTML = channels.map((channel, index) => `
+                    <div class="channel-item" data-url="${channel.url}">
+                        <div class="channel-number">${index + 1}</div>
+                        <div class="channel-name">${channel.name}</div>
+                    </div>
+                `).join('');
+
+                document.querySelectorAll('.channel-item').forEach((channel, index) => {
+                    channel.addEventListener('click', () => {
+                        playChannel(channel, index);
+                    });
+                });
+            }
+
+            function playChannel(channel, index) {
+                currentChannelIndex = index;
+                videoLoader.classList.add('show');
+                videoWarning.classList.remove('show');
+
+                const loadingTimeout = setTimeout(() => {
+                    videoLoader.classList.remove('show');
+                    showError('Loading timeout');
+                }, 15000);
+
+                initializePlayer(channel.dataset.url);
+
+                video.addEventListener('loadeddata', () => {
+                    clearTimeout(loadingTimeout);
+                    videoLoader.classList.remove('show');
+                }, { once: true });
+
+                video.addEventListener('error', () => {
+                    clearTimeout(loadingTimeout);
+                    videoLoader.classList.remove('show');
+                    showError();
+                }, { once: true });
+
+                channelsPanel.classList.remove('show');
+                searchPanel.classList.remove('show');
+            }
+
+            // Event Listeners
+            playPauseBtn.addEventListener('click', () => {
+                if (video.paused) {
+                    video.play();
+                } else {
+                    video.pause();
+                }
+            });
+
+            video.addEventListener('play', () => {
+                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            });
+
+            video.addEventListener('pause', () => {
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            });
+
+            volumeBtn.addEventListener('click', () => {
+                if (video.volume > 0) {
+                    lastVolume = video.volume;
+                    video.volume = 0;
+                    volumeBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                    volumeSlider.value = 0;
+                } else {
+                    video.volume = lastVolume;
+                    volumeBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                    volumeSlider.value = lastVolume * 100;
+                }
+            });
+
+            volumeSlider.addEventListener('input', (e) => {
+                video.volume = e.target.value / 100;
+                lastVolume = video.volume;
+                volumeBtn.innerHTML = `<i class="fas fa-volume-${video.volume > 0 ? 'up' : 'mute'}"></i>`;
+            });
+
+            channelsBtn.addEventListener('click', () => {
+                channelsPanel.classList.toggle('show');
+                searchPanel.classList.remove('show');
+                infoPopup.classList.remove('show');
+            });
+
+            searchBtn.addEventListener('click', () => {
+                searchPanel.classList.add('show');
+                channelsPanel.classList.remove('show');
+                infoPopup.classList.remove('show');
+                searchInput.focus();
+            });
+
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const channels = document.querySelectorAll('.channel-item');
+                
+                searchResults.innerHTML = '';
+                Array.from(channels).forEach(channel => {
+                    const name = channel.querySelector('.channel-name').textContent.toLowerCase();
+                    const number = channel.querySelector('.channel-number').textContent;
+                    if (name.includes(searchTerm) || number.includes(searchTerm)) {
+                        const clone = channel.cloneNode(true);
+                        clone.addEventListener('click', () => {
+                            playChannel(channel, Array.from(channels).indexOf(channel));
+                        });
+                        searchResults.appendChild(clone);
+                    }
+                });
+            });
+
+            prevBtn.addEventListener('click', () => {
+                const channels = document.querySelectorAll('.channel-item');
+                if (channels.length > 0) {
+                    currentChannelIndex = (currentChannelIndex - 1 + channels.length) % channels.length;
+                    playChannel(channels[currentChannelIndex], currentChannelIndex);
+                }
+            });
+
+            nextBtn.addEventListener('click', () => {
+                const channels = document.querySelectorAll('.channel-item');
+                if (channels.length > 0) {
+                    currentChannelIndex = (currentChannelIndex + 1) % channels.length;
+                    playChannel(channels[currentChannelIndex], currentChannelIndex);
+                }
+            });
+
+            pipBtn.addEventListener('click', async () => {
+                try {
+                    if (document.pictureInPictureElement) {
+                        await document.exitPictureInPicture();
+                    } else if (document.pictureInPictureEnabled) {
+                        await video.requestPictureInPicture();
+                    } else {
+                        showError('PiP not supported');
+                    }
+                } catch (error) {
+                    showError('PiP failed');
+                }
+            });
+
+            castBtn.addEventListener('click', () => {
+                showError('Casting not available');
+            });
+
+            infoBtn.addEventListener('click', () => {
+                infoPopup.classList.add('show');
+                channelsPanel.classList.remove('show');
+                searchPanel.classList.remove('show');
+            });
+
+            closePopup.addEventListener('click', () => {
+                infoPopup.classList.remove('show');
+            });
+
+            fullscreenBtn.addEventListener('click', () => {
+                if (!document.fullscreenElement) {
+                    video.parentElement.requestFullscreen();
+                } else {
+                    document.exitFullscreen();
+                }
+            });
+
+            document.addEventListener('fullscreenchange', () => {
+                fullscreenBtn.innerHTML = document.fullscreenElement ? 
+                    '<i class="fas fa-compress"></i>' : 
+                    '<i class="fas fa-expand"></i>';
+            });
+
+            // Mobile touch events
+            if (isTouch) {
+                video.addEventListener('touchstart', () => {
+                    controls.classList.add('active');
+                    clearTimeout(controlsTimeout);
+                    controlsTimeout = setTimeout(() => {
+                        controls.classList.remove('active');
+                    }, 3000);
+                });
+            }
+
+            // Keyboard controls
+            document.addEventListener('keydown', (e) => {
+                if (e.target.tagName === 'INPUT') return;
+                
+                switch(e.key.toLowerCase()) {
+                    case ' ':
+                    case 'k':
+                        e.preventDefault();
+                        playPauseBtn.click();
+                        break;
+                    case 'f':
+                        e.preventDefault();
+                        fullscreenBtn.click();
+                        break;
+                    case 'm':
+                        e.preventDefault();
+                        volumeBtn.click();
+                        break;
+                    case 'arrowleft':
+                        e.preventDefault();
+                        prevBtn.click();
+                        break;
+                    case 'arrowright':
+                        e.preventDefault();
+                        nextBtn.click();
+                        break;
+                }
+            });
+
+            // Initialize
+            loadChannels();
+        });
+
+
+
+    </script>
+
+
+</body>
+</html>
+
