@@ -7,17 +7,17 @@
         }
 
         body {
-            background: #0f0f0f;
+            background: #000;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            color: white;
+            padding: 0px;
+            color: red;
+             overflow: hidden;
         }
 
         .player-container {
-            width: 640px;
+            width: 100%;
             background: #000;
             position: relative;
             border-radius: 0;
@@ -26,15 +26,15 @@
         }
 
         .video-wrapper {
-            width: 100%;
+            width: 100%; height: 100vh!important;
             aspect-ratio: 16/9;
             position: relative;
             background: #000;
         }
 
         video {
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             object-fit: contain;
         }
 
@@ -69,8 +69,8 @@
         }
 
         .loader-text {
-            color: white;
-            font-size: 14px;
+            color:red;
+            font-size: 24px;
         }
 
         @keyframes spin {
@@ -353,7 +353,7 @@
         }
 
         .info-content ul li:before {
-            content: "â€¢";
+            content: "•";
             color: #ff0000;
             position: absolute;
             left: 0;
@@ -432,7 +432,7 @@
         /* Responsive Styles */
         @media (min-width: 1000px) {
             .player-container {
-                width: 854px;
+                width: 100%;  height: 100%;
             }
         }
 
