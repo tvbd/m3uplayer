@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orit Live</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="https://i.ibb.co/WtzxpGF/1000033024.png">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #000000;
+            color: #fff;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            text-align: center;
+            padding: 15px;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            font-weight: bold;
+            letter-spacing: 1px;
+            font-size: clamp(24px, 4vw, 32px);
+            background: #000;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #player-container {
+            width: 100%;
+            background: #000;
+            position: relative;
+        }
+
+        #live-tv-player {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            object-fit: contain;
+        }
+
+        .channel-section {
+            background-image: url('https://raw.githubusercontent.com/cracker2161/syncing_file/refs/heads/main/logo/bitt%20ka%20naam.jpeg');
+            background-size: cover;
+            background-position: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .search-bar {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            outline: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+        .channel-list {
+            flex: 1;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .channel-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .channel-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .channel-item img {
+            width: 40px;
+            height: 40px;
+            margin-right: 15px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .channel-item span {
+            color: #fff;
+            font-size: 15px;
+        }
+
+        .footer {
+            padding: 10px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .footer a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .channel-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .channel-list::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .channel-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        @media (min-width: 768px) {
+            .content-wrapper {
+                flex-direction: row;
+            }
+
+            #player-container {
+                flex: 1;
+                height: calc(100vh - 62px);
+            }
+
+            .channel-section {
+                width: 350px;
+                min-width: 350px;
+            }
+        }
+
+        @media (max-width: 767px) {
+            body {
+                overflow: auto;
+            }
+
+            .container {
+                height: auto;
+            }
+
+            #player-container {
+                height: 35vh;
+            }
+
+            .channel-section {
+                height: 65vh;
+            }
+
+            .channel-list {
+                max-height: calc(65vh - 110px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .channel-item {
+                padding: 10px;
+            }
+
+            .channel-item img {
+                width: 35px;
+                height: 35px;
+                margin-right: 10px;
+            }
+
+            .channel-item span {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Orit Live</h1>
+        <div class="content-wrapper">
+            <div id="player-container">
+                <video id="live-tv-player" controls preload="auto">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+
+            <div class="channel-section">
+                <div class="search-bar">
+                    <input type="text" id="search-input" placeholder="Search channels..." onkeyup="filterChannels()">
+                </div>
+                <div class="channel-list" id="channel-list"></div>
+                <div class="footer">
+                    <a href="updates.html" target="_blank">Visit for more updates</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let player = document.getElementById('live-tv-player');
+        let currentHls = null;
+
+        window.onload = () => {
+            loadChannels();
+            adjustPlayerHeight();
+        };
+
+        window.onresize = adjustPlayerHeight;
+
+        function adjustPlayerHeight() {
+            if (window.innerWidth >= 768) {
+                const headerHeight = document.querySelector('h1').offsetHeight;
+                const containerHeight = window.innerHeight;
+                player.style.height = `${containerHeight - headerHeight}px`;
+            } else {
+                player.style.height = '35vh';
+            }
+        }
+
+        const config = {
+            maxBufferLength: 30,
+            maxMaxBufferLength: 600,
+            manifestLoadingTimeOut: 10000,
+            manifestLoadingMaxRetry: 5,
+            levelLoadingTimeOut: 10000,
+            levelLoadingMaxRetry: 5
+        };
+
+        function playChannel(url) {
+            // Destroy previous HLS instance if exists
+            if (currentHls) {
+                currentHls.destroy();
+                currentHls = null;
+            }
+
+            if (Hls.isSupported()) {
+                currentHls = new Hls(config);
+                currentHls.loadSource(url);
+                currentHls.attachMedia(player);
+                currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    player.play().catch(error => {
+                        console.error('Error playing channel:', error);
+                    });
+                });
+                
+                currentHls.on(Hls.Events.ERROR, function(event, data) {
+                    if (data.fatal) {
+                        switch(data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                console.log("Network error, trying to recover...");
+                                currentHls.startLoad();
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                console.log("Media error, trying to recover...");
+                                currentHls.recoverMediaError();
+                                break;
+                            default:
+                                currentHls.destroy();
+                                break;
+                        }
+                    }
+                });
+            }
+            // For browsers that natively support HLS
+            else if (player.canPlayType('application/vnd.apple.mpegurl')) {
+                player.src = url;
+                player.addEventListener('loadedmetadata', function() {
+                    player.play();
+                });
+            }
+        }
+
+        async function loadChannels() {
+            try {
+                const response = await fetch('https://m3u.ch/pl/b3499faa747f2cd4597756dbb5ac2336_e78e8c1a1cebb153599e2d938ea41a50.m3u');
+                const playlist = await response.text();
+                const lines = playlist.split('\n');
+                const channels = [];
+
+                for (let i = 0; i < lines.length; i++) {
+                    if (lines[i].startsWith('#EXTINF')) {
+                        const name = lines[i].split(',')[1];
+                        const url = lines[i + 1];
+                        const logoMatch = lines[i].match(/tvg-logo="(.*?)"/);
+                        const logo = logoMatch ? logoMatch[1] : '';
+                        if (url && url.startsWith('http')) {
+                            channels.push({ name, url, logo });
+                        }
+                    }
+                }
+
+                renderChannels(channels);
+            } catch (error) {
+                console.error('Error loading channels:', error);
+            }
+        }
+
+        function renderChannels(channels) {
+            const channelList = document.getElementById('channel-list');
+            channelList.innerHTML = '';
+            channels.forEach((channel, index) => {
+                const item = document.createElement('div');
+                item.className = 'channel-item';
+                item.innerHTML = `
+                    <img src="${channel.logo || 'https://via.placeholder.com/40'}" alt="${channel.name}">
+                    <span>${channel.name}</span>
+                `;
+                item.onclick = () => playChannel(channel.url);
+                channelList.appendChild(item);
+
+                if (index === 0) {
+                    playChannel(channel.url);
+                }
+            });
+        }
+
+        function filterChannels() {
+            const searchInput = document.getElementById('search-input').value.toLowerCase();
+            const items = document.querySelectorAll('.channel-item');
+            items.forEach(item => {
+                const name = item.querySelector('span').textContent.toLowerCase();
+                item.style.display = name.includes(searchInput) ? 'flex' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>
