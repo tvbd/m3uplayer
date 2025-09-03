@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="An IPTV player powered by Bugsfree">
+    <meta name="theme-color" content="#0066cc">
+    <title>IPTV Player! Watch LiveTV Anywhere!!</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.15"></script>
+    <script src="https://cdn.dashjs.org/v4.7.0/dash.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+    <link rel="stylesheet" href="./css/styles.css">
+	<link rel="icon" href="./img/logo.png" type="image/png">
+</head>
+<body>
+    <div class="container" id="playerSection">
+        <div class="content">
+            <div class="datetime" id="datetime"></div>
+            <div class="tv-frame" id="tvFrame">
+                <video id="videoPlayer" controls class="tv-screen" poster="https://bugsfreecdn.netlify.app/BugsfreeDefault/player-poster.webp"></video>
+            </div>
+            <div class="controls" id="controls">
+                <button id="sidebarToggleBtn" title="Show/Hide Playlist">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                        <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h12v2H3v-2z"/>
+                    </svg>
+                </button>
+                <button id="favoritesToggleBtn" title="Show/Hide Favorites">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                </button>
+                <button id="themeCycleBtn" title="Cycle Theme">
+                    <svg class="theme-icon" width="24" height="24" viewBox="0 0 24 24" fill="white">
+                        <path d="M12 2a10 10 0 00-3.16 19.4c.6.12 1.21.2 1.84.2 4.41 0 8-3.59 8-8a10 10 0 00-14.84-8.36 9.91 9.91 0 007.16-2.24z"/>
+                    </svg>
+                </button>
+                <button id="fullscreenToggleBtn" title="Toggle Fullscreen">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                        <path d="M3 3h6v2H5v4H3V3zm12 0h6v6h-2V5h-4V3zm6 12h-6v2h4v4h2v-6zM3 15h6v6H3v-2h4v-4H3z"/>
+                    </svg>
+                </button>
+                <button id="pipToggleBtn" title="Picture-in-Picture">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                        <path d="M19 7h-8v6h8V7zm-8-2H5v14h14v-6h-8V5zm10 0h-2v14h2V5z"/>
+                    </svg>
+                </button>
+                <button id="epgShowBtn" title="Show EPG">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 12H7v-2h4v2zm0-4H7V9h4v2zm6 4h-4v-2h4v2zm0-4h-4V9h4v2z"/>
+                    </svg>
+                </button>
+                <select id="qualitySelector" title="Select Quality">
+                    <option value="-1">Auto</option>
+                </select>
+                <select id="sleepTimer" title="Sleep Timer">
+                    <option value="0">Sleep-Off</option>
+                    <option value="15">15 min</option>
+                    <option value="30">30 min</option>
+                    <option value="60">60 min</option>
+                </select>
+            </div>
+        </div>
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-section" style="display: flex; gap: 10px; align-items: center;">
+                <label for="defaultPlaylistToggle" style="margin: 0;">
+                    <input type="checkbox" id="defaultPlaylistToggle">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h12v2H3v-2z"/>
+                    </svg>
+                    Def. Play.
+                </label>
+                <label for="historyToggle" style="margin: 0;">
+                    <input type="checkbox" id="historyToggle">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L8 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+                    </svg>
+                    Hist.
+                </label>
+            </div>
+            <div class="sidebar-section">
+                <div class="url-load-container">
+                    <input type="text" id="urlInput" placeholder="Enter Playlist URL...">
+                    <button id="loadUrlBtn" class="load-url-btn" title="Load URL">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="sidebar-section file-upload">
+                <label for="fileInput">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 2c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6H6zm7 7V3.5L18.5 9H13z"/>
+                    </svg>
+                    Upload Playlist
+                </label>
+                <input type="file" id="fileInput" accept=".m3u,.json,.txt">
+            </div>
+            <div class="sidebar-section">
+                <div class="url-load-container">
+                    <select id="categoryFilter">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <div class="url-load-container">
+                    <input type="text" id="searchBar" placeholder="Search channels...">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="position: absolute; right: 25px;">
+                        <path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 001.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 00-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 005.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0 .41-.41.41-1.08 0-1.49L15.5 14zM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="channel-list" id="channelList"></div>
+            <div class="status-bar" id="statusBar">
+                <div class="status-item" id="showAllChannelsBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
+                    </svg>
+                    <span id="totalChannels">0</span>
+                </div>
+                <div class="status-item" id="showOnlineChannelsBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-5-5 1.41-1.41L11 14.17l6.59-6.59L19 9l-8 8z"/>
+                    </svg>
+                    <span id="onlineChannels">0</span>
+                </div>
+                <div class="status-item" id="showOfflineChannelsBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.29-11.29L15 10l-3 3-3-3-1.29 1.29 3 3-3 3 1.29 1.29 3-3 3 3 1.29-1.29-3-3 3-3z"/>
+                    </svg>
+                    <span id="offlineChannels">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="popup-overlay" id="popupOverlay"></div>
+    <div class="popup" id="historyPopup">
+        <h2>Playlist History</h2>
+        <select id="multiPlaylistSelect">
+            <option value="">Switch Playlist</option>
+        </select>
+        <div id="historyList"></div>
+        <button class="close-btn" id="closePopupBtn">×</button>
+    </div>
+    <div class="popup" id="epgPopup">
+        <h2>Program Guide</h2>
+        <div id="epgContent"></div>
+        <button class="close-btn" id="closeEpgPopupBtn">×</button>
+    </div>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div>
+            <div class="circle-progress" id="circleProgress">
+                <canvas id="progressCanvas" width="100" height="100"></canvas>
+                <span id="loadingProgress">0%</span>
+            </div>
+            <p>Loading playlist...</p>
+        </div>
+    </div>
+    <script src="./js/script.js"></script>
+</body>
+</html>
