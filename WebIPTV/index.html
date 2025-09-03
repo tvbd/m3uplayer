@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=340, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="IPTV Player powered by Bugsfree">
+    <meta name="theme-color" content="#1e90ff">    
+    <title>Web IPTV Player| Watch your Favorites TV channels, Series and Movies here! </title>
+    <base href="./">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="manifest" href="manifest.json">    
+    <link rel="icon" type="image/png" href="./img/logo.png" />
+    <link rel="shortcut icon" href="./img/favicon.ico" />
+    <link rel="apple-touch-icon" href="./img/logo.png">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dashjs@4.7.2/dist/dash.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.29.2/dist/feather.min.js"></script>
+</head>
+<body class="light">
+    <div class="container">
+        <div class="localtime-bar" id="localTime"></div>
+        <video id="player" controls autoplay playsinline muted poster="https://bugsfreecdn.netlify.app/BugsfreeDefault/player-poster.webp"></video>
+        <button id="toggleTheme" class="theme-toggle-btn" title="Toggle theme"><i data-feather="moon" class="w-6 h-6"></i></button>
+        <button id="toggleSidebar" class="sidebar-toggle" title="Toggle sidebar"><i data-feather="x" class="w-6 h-6"></i></button>
+        <div class="sidebar">
+            <div class="sidebar-content">
+                <div class="upload-panel">
+                    <h3>Upload Playlist or URL</h3>
+                    <input type="file" id="fileInput" accept=".m3u,.json,.txt">
+                    <div class="url-row">
+                        <input type="text" id="urlInput" placeholder="Enter stream URL">
+                        <button id="loadUrl" title="Load Stream"><i data-feather="play"></i></button>
+                    </div>
+                </div>
+                <div class="search-panel">
+                    <input type="text" id="searchInput" placeholder="Search channels...">
+                </div>
+                <div class="tabs">
+                    <div class="tab active" data-tab="channels"><i data-feather="tv" class="w-5 h-5"></i></div>
+                    <div class="tab" data-tab="history"><i data-feather="clock" class="w-5 h-5"></i></div>
+                    <div class="tab" data-tab="favorites"><i data-feather="heart" class="w-5 h-5"></i></div>
+                    <div class="tab" data-tab="analysis"><i data-feather="bar-chart-2" class="w-5 h-5"></i></div>
+                </div>
+                <div class="tab-content active" id="channels-tab">
+                    <div class="channel-list" id="channelList"></div>
+                </div>
+                <div class="tab-content" id="history-tab">
+                    <div class="history-list" id="historyList"></div>
+                </div>
+                <div class="tab-content" id="favorites-tab">
+                    <div class="favorites-list" id="favoritesList"></div>
+                    <div class="favorites-list-bar">
+                        <button id="exportFavoritesBtn" class="favorites-export-btn"><i data-feather="download" style="vertical-align: middle;"></i> Save/Export</button>
+                    </div>
+                </div>
+                <div class="tab-content" id="analysis-tab">
+                    <div class="analysis-panel">
+                        <h3>Playlist Analysis
+                            <button id="manualCheckBtn" class="manual-check-btn" title="Manual check"><i data-feather="check-circle"></i></button>
+                        </h3>
+                        <div class="analysis-buttons">
+                            <button id="showTotal" class="tab-analysis-btn active">Total</button>
+                            <button id="showOnline" class="tab-analysis-btn">Online</button>
+                            <button id="showOffline" class="tab-analysis-btn">Offline</button>
+                        </div>
+                        <div class="analysis-status-summary" id="analysisStatusSummary">
+                            <span id="analysisText">Total: 0 | Online: 0 | Offline: 0</span>
+                        </div>
+                        <canvas id="analysisChart" width="200" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-footer" id="sidebarFooter"></div>
+        </div>
+        <div id="status">
+            <svg class="animate-spin h-8 w-8 text-blue-500 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Loading Stream...
+        </div>
+    </div>
+    <script src="./js/app.js"></script>
+    <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(reg => console.log('Service Worker registered:', reg))
+        .catch(err => console.error('Service Worker registration failed:', err));
+    }
+  </script>
+</body>
+</html>
