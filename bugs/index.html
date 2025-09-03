@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="An IPTV player powered by Bugsfree">
+<meta name="theme-color" content="#0066cc">
+<title>Bugsfree Studio Web IPTV</title>
+<link rel="stylesheet" href="./css/style.css">
+<link rel="icon" href="./img/logo.png" type="image/png">
+<link rel="manifest" href="manifest.json">
+<!-- Apple Touch Icon for iOS -->
+<link rel="apple-touch-icon" href="./img/icon-192x192.png">
+<script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body>
+    <div class="tv-container">
+        <div class="tv-screen">
+            <aside class="left-panel">
+                <nav class="sidebar-tabs">
+                    <button class="tab-btn active" data-tab="upload" title="Upload"><i data-feather="upload"></i></button>
+                    <button class="tab-btn" data-tab="settings" title="Settings"><i data-feather="settings"></i></button>
+                    <button class="tab-btn" data-tab="history" title="History"><i data-feather="clock"></i></button>
+                    <button class="tab-btn" data-tab="favorites" title="Favorites"><i data-feather="star"></i></button>
+                    <button class="tab-btn" data-tab="analysis" title="Analysis"><i data-feather="pie-chart"></i></button>
+                </nav>
+                <section class="tab-content tab-upload active">
+                    <form id="m3u-upload-form" enctype="multipart/form-data" autocomplete="off">
+                        <label>Upload m3u/json/txt:</label>
+                        <input type="file" id="m3u-file-input" accept=".m3u,.m3u8,.json,.txt,.list,.channels">
+                    </form>
+                    <form id="m3u-url-form" autocomplete="off">
+                        <label>Load playlist by URL:</label>
+                        <input type="url" id="m3u-url-input" placeholder="Paste m3u/m3u8/json/txt URL...">
+                        <button type="submit" class="sidebar-action-btn"><i data-feather="link"></i> Load</button>
+                    </form>
+                    <!--<form id="single-channel-form" autocomplete="off">
+                        <label>Add Single Channel:</label>
+                        <input type="text" id="single-channel-url" placeholder="Channel Stream URL">
+                        <input type="text" id="single-channel-name" placeholder="Channel Name (optional)">
+                        <input type="text" id="single-channel-logo" placeholder="Logo URL (optional)">
+                        <button type="submit" class="sidebar-action-btn"><i data-feather="plus-circle"></i> Add</button>
+                    </form>-->
+                </section>
+                <section class="tab-content tab-settings">
+                    <div class="menu-item sound-control" id="mute-btn">
+                        <span>Sound</span>
+                        <span class="sound-status" id="sound-status">ON</span>
+                        <span class="sound-icon" id="sound-icon-btn"><i data-feather="volume-2"></i></span>
+                    </div>
+                    <div class="menu-item control-item" id="scanlines-btn">
+                        <span>Scanlines</span>
+                        <span class="control-status" id="scanlines-status">ON</span>
+                    </div>
+                    <div class="menu-item control-item" id="background-sync-btn">
+                        <span>Background Sync</span>
+                        <span class="control-status" id="background-sync-status">OFF</span>
+                    </div>
+                    <div class="menu-item control-item">
+                        <span>Brightness</span>
+                        <input type="range" class="control-slider" id="brightness-slider" min="50" max="150" value="100">
+                    </div>
+                    <div class="menu-item control-item">
+                        <span>Contrast</span>
+                        <input type="range" class="control-slider" id="contrast-slider" min="50" max="200" value="100">
+                    </div>
+                    <div class="menu-item control-item">
+                        <span>Saturation</span>
+                        <input type="range" class="control-slider" id="saturation-slider" min="0" max="200" value="100">
+                    </div>
+                </section>
+                <section class="tab-content tab-history">
+                    <div class="history-actions">
+                        <button id="history-delete-all" class="sidebar-action-btn"><i data-feather="trash-2"></i> Delete All</button>
+                        <button id="history-resync-all" class="sidebar-action-btn"><i data-feather="refresh-ccw"></i> Resync All</button>
+                    </div>
+                    <ul class="history-list" id="history-list"></ul>
+                </section>
+                <section class="tab-content tab-favorites">
+                    <ul class="favorites-list" id="favorites-list"></ul>
+                </section>
+                <section class="tab-content tab-analysis">
+                    <div class="analysis-summary">
+                        <canvas id="analysis-chart" width="180" height="180"></canvas>
+                        <ul class="analysis-list">
+                            <li><button type="button" class="analysis-link" id="analysis-total-btn"><span>Total Channels:</span> <span id="analysis-total">0</span></button></li>
+                            <li><button type="button" class="analysis-link" id="analysis-online-btn"><span>Online:</span> <span id="analysis-online">0</span></button></li>
+                            <li><button type="button" class="analysis-link" id="analysis-offline-btn"><span>Offline:</span> <span id="analysis-offline">0</span></button></li>
+                        </ul>
+                        <button type="button" id="analysis-sync-btn" class="sidebar-action-btn"><i data-feather="refresh-cw"></i> Sync Channels</button>
+                    </div>
+                </section>
+                <div class="channel-list-box">
+                    <h3>PLAYLIST</h3>
+                    <ul class="channel-list" id="channel-list"></ul>
+                </div>
+                <div class="sidebar-bottom">
+                    <button id="theme-toggle" class="sidebar-action-btn icon-bordered" title="Toggle Theme">
+                        <i data-feather="sun"></i>
+                    </button>
+                    <button class="sidebar-action-btn icon-bordered" id="report-issue-btn" title="Report Issue">
+                        <i data-feather="alert-circle"></i>
+                    </button>
+                    <button class="sidebar-action-btn icon-bordered" id="sidebar-exit-btn" title="Hide Sidebar">
+                        <i data-feather="chevrons-left"></i>
+                    </button>
+                </div>
+            </aside>
+            <main class="main-screen">
+                <div class="tv-header">
+                    <div class="channel-info">
+                        <div class="logo">
+                            <img id="channel-logo" src="./img/logo.png" alt="Channel Logo" onerror="this.src='./img/logo.png'">
+                            <span class="special-animated">Bugsfree Studio</span>
+                        </div>
+                        <div>CH <span id="current-channel">01</span></div>
+                    </div>
+                    <div class="header-controls">
+                        <button class="header-button icon-bordered" id="main-mute-btn" title="Toggle Sound"><i data-feather="volume-2"></i></button>
+                        <button class="header-button icon-bordered" id="next-channel-btn" title="Next Channel"><i data-feather="skip-forward"></i></button>
+                        <button class="header-button icon-bordered" id="sidebar-toggle-btn" title="Show/Hide Sidebar"><i data-feather="menu"></i></button>
+                    </div>
+                    <div class="time" id="current-time">--:--:--</div>
+                </div>
+                <div class="video-container" id="video-container"></div>
+                <div class="status-bar">
+                    <div class="now-playing">
+                        <div class="live-indicator">LIVE</div>
+                        <div id="channel-name">No Channel</div>
+                    </div>
+                    <div class="viewer-count">
+                        <span id="viewer-count">0</span> watching
+                    </div>
+                </div>
+            </main>
+            <div class="scanlines"></div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.0/dist/hls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="./js/app.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+	<script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker registered:', reg))
+                    .catch(err => console.error('Service Worker registration failed:', err));
+            });
+        }
+    </script>
+</body>
+</html>
