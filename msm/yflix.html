@@ -1,0 +1,3607 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LIVE Sports From MsM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- HLS.js স্ক্রিপ্ট যোগ করা হয়েছে (মূল চ্যানেল এবং ইন্ট্রো ভিডিওর জন্য) -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        body {
+            background-color: #0d1a26;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            height: 100vh; /* Ensure body takes full viewport height */
+        }
+        html {
+            height: 100%; /* Ensure html takes full viewport height */
+        }
+
+        /* Loading Overlay Styles */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: #00bfff;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .loading-overlay .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #00bfff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Internet Status Overlay Styles */
+        .internet-status-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000; /* Higher than other overlays */
+            color: #ff3366; /* Red color for warning */
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            gap: 20px;
+            display: none; /* Hidden by default */
+        }
+
+        .internet-status-overlay .icon {
+            font-size: 80px;
+            color: #ff3366;
+        }
+
+        .internet-status-overlay .message {
+            font-size: 1.2em;
+            color: #e0e0e0;
+        }
+
+
+        .main-app-container {
+            max-width: 100%;
+            width: 100%;
+            margin: 0;
+            background-color: #1a2a3a;
+            border-radius: 0;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            height: 100vh;
+            display: flex;
+            flex-direction: column; /* Default to column for mobile */
+        }
+
+        /* New styles for flex layout on mobile for scrolling */
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0; /* Prevent left column from shrinking */
+        }
+
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1; /* Allow right column to take remaining height on mobile */
+            overflow-y: auto; /* Enable scrolling for right column content on mobile */
+            background-color: #1a2a3a; /* Match main container background */
+        }
+
+        .app-header {
+            background-color: #2c3e50;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+            font-weight: bold;
+            font-size: 20px;
+            border-bottom: 1px solid #3d5a71;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
+        }
+
+        .app-header .logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            position: relative;
+        }
+
+        .app-header .logo img {
+            height: 35px;
+            border-radius: 6px;
+            transition: height 0.3s ease; /* Smooth transition for resizing */
+        }
+
+        /* New styles for premium status */
+        #premiumStatusHeader {
+            display: none; /* Hide by default */
+            color: #ffcc00;
+            font-size: 10px;
+            font-weight: bold;
+            margin-top: -3px; /* Adjust spacing */
+            text-transform: uppercase;
+        }
+
+        /* Class to apply when user is premium */
+        .logo.premium-active #headerLogo {
+            height: 25px; /* Smaller logo when premium text is visible */
+        }
+
+        .logo.premium-active #premiumStatusHeader {
+            display: block; /* Show premium text */
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .translate-icon, .category-icon, .bookmark-icon, .search-icon, .add-link-icon, .event-icon {
+            color: #00bfff;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .translate-icon:hover, .category-icon:hover, .bookmark-icon:hover, .search-icon:hover, .add-link-icon:hover, .event-icon:hover {
+            background-color: rgba(0, 191, 255, 0.2);
+        }
+        
+        .bookmark-icon.active {
+            color: #ffcc00;
+        }
+
+
+        .video-section {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            background-color: #000;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .video-section video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background-color: #000;
+            display: none; /* Hidden by default, shown by JS */
+        }
+
+        .video-section iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: none;
+        }
+        
+        /* Intro Video Overlay */
+        .intro-video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            display: none; /* Hidden by default */
+        }
+        
+        .intro-video-overlay video {
+            position: absolute; /* Set to absolute */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Changed from cover to contain to prevent zooming */
+            background-color: black;
+            display: block !important; /* Ensure it's always displayed when the overlay is visible */
+        }
+
+
+        .intro-video-overlay .skip-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            z-index: 101; /* Above the video */
+            display: none; /* Hidden until ready to skip */
+        }
+
+        /* Custom Ad Button Styles */
+        .ad-custom-button {
+            background-color: #00bfff;
+            color: #0d1a26;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .ad-custom-button:hover {
+            background-color: #0099cc;
+            transform: translateY(-2px);
+        }
+
+
+        .video-details {
+            padding: 8px 15px;
+            background-color: #1a2a3a;
+            border-bottom: 1px solid #3d5a71;
+            flex-shrink: 0;
+        }
+        
+        .video-details-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3px;
+        }
+
+        .video-details .main-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #e0e0e0;
+            margin-bottom: 0;
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .video-details .title-bookmark-icon {
+            color: #a0a0a0;
+            font-size: 18px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: color 0.2s ease;
+            flex-shrink: 0;
+        }
+        
+        .video-details .title-bookmark-icon.bookmarked {
+            color: #ffcc00;
+        }
+
+        .video-details .views-info {
+            font-size: 12px;
+            color: #a0a0a0;
+            text-align: left;
+            margin-top: 5px;
+        }
+
+        .actions-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 10px;
+            background-color: #1a2a3a;
+            border-top: 1px solid #3d5a71;
+            flex-shrink: 0;
+        }
+
+        .action-group {
+            display: flex;
+            align-items: center;
+            border-radius: 20px;
+            background-color: rgba(61, 90, 113, 0.2);
+        }
+
+        .action-group .action-button {
+            background-color: transparent;
+            color: #e0e0e0;
+            padding: 5px 8px;
+            border-radius: 0;
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: none;
+            min-width: unset;
+        }
+
+        .action-group .action-button:first-child {
+            border-top-left-radius: 20px;
+            border-bottom-left-radius: 20px;
+        }
+
+        .action-group .action-button:last-child {
+            border-top-right-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+
+        .action-group .action-button.has-border {
+            border-right: 1px solid rgba(61, 90, 113, 0.4);
+            padding-right: 8px;
+            margin-right: -1px;
+        }
+
+        .action-group .action-button i {
+            font-size: 16px;
+            margin-bottom: 0;
+        }
+
+        .action-button.like-btn i {
+            color: #00bfff;
+        }
+        .action-button.dislike-btn i {
+            color: #a0a0a0;
+        }
+        .action-button.share-btn i {
+            color: #00bfff;
+        }
+        .action-button.online-btn i {
+            color: #ff3366;
+        }
+        .action-button.chat-btn i {
+            color: #28a745;
+        }
+        .action-button.bookmark-toggle-btn i {
+            color: #a0a0a0;
+        }
+        .action-button.bookmark-toggle-btn.bookmarked i {
+            color: #ffcc00;
+        }
+
+        .action-button.profile-btn i {
+            color: #f0ad4e;
+        }
+
+
+        .action-button:hover {
+            background-color: rgba(61, 90, 113, 0.4);
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .action-button span {
+            font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
+            font-weight: 500;
+            color: #e0e0e0;
+        }
+
+
+        .username-overlay {
+            display: none !important;
+        }
+
+        .username-input-box {
+            background-color: #1a2a3a;
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            text-align: center;
+            max-width: 90%;
+            border: 1px solid #3d5a71;
+        }
+
+        .username-input-box h2 {
+            color: #00bfff;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        .username-input-box input[type="text"] {
+            width: calc(100% - 28px);
+            padding: 14px;
+            margin-bottom: 20px;
+            border: 1px solid #3d5a71;
+            border-radius: 8px;
+            background-color: #2c3e50;
+            color: #e0e0e0;
+            font-size: 17px;
+        }
+
+        .username-input-box input[type="text"]::placeholder {
+            color: #a0a0a0;
+        }
+
+        .username-input-box button {
+            background-color: #00bfff;
+            color: #0d1a26;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 17px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .username-input-box button:hover {
+            background-color: #0099cc;
+            transform: translateY(-1px);
+        }
+
+        .add-link-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+            z-index: 2000;
+        }
+
+        .add-link-box-container {
+            background-color: #1a2a3a;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid #3d5a71;
+            position: relative;
+        }
+
+        .add-link-box-container h2 {
+            color: #00bfff;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .add-link-box-container input[type="text"] {
+            width: calc(100% - 28px);
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border: 1px solid #3d5a71;
+            border-radius: 8px;
+            background-color: #2c3e50;
+            color: #e0e0e0;
+            font-size: 16px;
+        }
+
+        .add-link-box-container input[type="text"]::placeholder {
+            color: #a0a0a0;
+        }
+
+        .add-link-box-container button {
+            background-color: #00bfff;
+            color: #0d1a26;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .add-link-box-container button:hover {
+            background-color: #0099cc;
+        }
+
+        .add-link-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: #e0e0e0;
+            font-size: 28px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .add-link-close-btn:hover {
+            color: #ff3366;
+        }
+
+        .category-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .category-menu-overlay.open {
+            display: flex;
+        }
+
+        .category-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 800px;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #3d5a71;
+            color: #00bfff;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .category-menu-close {
+            color: #e0e0e0;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.2s ease;
+        }
+
+        .category-menu-close:hover {
+            color: #ff3366;
+        }
+
+        .category-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            max-width: 800px;
+            justify-content: center;
+        }
+
+        .category-list li {
+            background-color: #2c3e50;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-align: center;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 120px;
+        }
+
+        .category-list li:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        .category-list li .category-icon-display {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 8px;
+            background-color: #3d5a71;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #00bfff;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .category-list li .category-icon-display img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .category-list li .category-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+
+        .remove-category-btn {
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            font-size: 18px;
+            cursor: pointer;
+            margin-left: 10px;
+            padding: 5px;
+            transition: color 0.2s ease;
+            display: none;
+        }
+
+        .remove-category-btn:hover {
+            color: #e0e0e0;
+        }
+
+
+        .channel-list-titles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            padding: 10px 15px 0;
+            background-color: #1a2a3a;
+            border-bottom: 1px solid #3d5a71;
+            flex-shrink: 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .channel-list-titles h3 {
+            color: #e0e0e0;
+            font-size: 18px;
+            margin: 0;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            background-color: rgba(44, 71, 98, 0.4);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .channel-list-titles h3:hover {
+            background-color: rgba(44, 71, 98, 0.6);
+        }
+
+        .channel-list-titles h3.active-title {
+            background-color: #3d5a71;
+            color: #00bfff;
+            font-weight: bold;
+        }
+
+        .channel-list-titles h3 .remove-custom-m3u-btn {
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            font-size: 16px;
+            cursor: pointer;
+            margin-left: 5px;
+            padding: 0;
+            transition: color 0.2s ease;
+        }
+
+        .channel-list-titles h3 .remove-custom-m3u-btn:hover {
+            color: #e0e0e0;
+        }
+
+        .all-channels-section {
+            background-color: #1a2a3a;
+            padding: 15px 20px;
+            border-top: none;
+            flex-grow: 1; /* Allow to take remaining height */
+            overflow-y: auto; /* Enable scrolling */
+        }
+
+        .all-channel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .all-channel-item {
+            background-color: #2c3e50;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-align: center;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .all-channel-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .all-channel-item .channel-icon-small {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 8px;
+            background-color: #3d5a71;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #e0e0e0;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .all-channel-item .channel-name-small {
+            font-size: 14px;
+            color: #e0e0e0;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        .search-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+            z-index: 2000;
+            display: none;
+        }
+
+        .search-box-container {
+            background-color: #1a2a3a;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            border: 1px solid #3d5a71;
+            position: relative;
+        }
+
+        .search-box-container h2 {
+            color: #00bfff;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .search-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .search-box-container input[type="text"] {
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: 1px solid #3d5a71;
+            border-radius: 8px;
+            background-color: #2c3e50;
+            color: #e0e0e0;
+            font-size: 16px;
+        }
+
+        .search-box-container input[type="text"]::placeholder {
+            color: #a0a0a0;
+        }
+
+        .search-box-container button {
+            background-color: #00bfff;
+            color: #0d1a26;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .search-box-container button:hover {
+            background-color: #0099cc;
+        }
+
+        .search-results-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            border-top: 1px solid #3d5a71;
+            padding-top: 10px;
+        }
+
+        .search-results-list li {
+            padding: 10px 15px;
+            border-bottom: 1px solid #2c3e50;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+
+        .search-results-list li:hover {
+            background-color: rgba(61, 90, 113, 0.3);
+        }
+
+        .search-results-list li:last-child {
+            border-bottom: none;
+        }
+
+        .search-results-list li .channel-icon-small {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: #3d5a71;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #e0e0e0;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .search-results-list li .channel-name-search {
+            font-size: 16px;
+            color: #e0e0e0;
+            font-weight: 500;
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        .bookmark-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+            z-index: 2000;
+            display: none;
+        }
+
+        .bookmark-list-container {
+            background-color: #1a2a3a;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            border: 1px solid #3d5a71;
+            position: relative;
+        }
+
+        .bookmark-list-container h2 {
+            color: #00bfff;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .bookmark-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: #e0e0e0;
+            font-size: 28px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .bookmark-close-btn:hover {
+            color: #ff3366;
+        }
+
+        .bookmark-channels-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            border-top: 1px solid #3d5a71;
+            padding-top: 10px;
+        }
+
+        .bookmark-channels-list li {
+            padding: 10px 15px;
+            border-bottom: 1px solid #2c3e50;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+
+        .bookmark-channels-list li:hover {
+            background-color: rgba(61, 90, 113, 0.3);
+        }
+
+        .bookmark-channels-list li:last-child {
+            border-bottom: none;
+        }
+
+        .bookmark-channels-list li .channel-icon-small {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: #3d5a71;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #e0e0e0;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .bookmark-channels-list li .channel-name-bookmark {
+            font-size: 16px;
+            color: #e0e0e0;
+            font-weight: 500;
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        .remove-bookmark-btn {
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            font-size: 20px;
+            cursor: pointer;
+            margin-left: 10px;
+            padding: 5px;
+            transition: color 0.2s ease;
+        }
+
+        .remove-bookmark-btn:hover {
+            color: #e0e0e0;
+        }
+
+        /* The original event-fullscreen-overlay and its children are no longer used to display events directly,
+          but are kept as a placeholder in the HTML if needed for other purposes or styling.
+          Its display will be controlled by JavaScript to remain hidden. */
+        .event-fullscreen-overlay {
+            display: none; /* Always hidden now */
+        }
+        
+        .profile-overlay {
+            display: none;
+        }
+        
+        .custom-alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9998;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .custom-alert-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .custom-alert-box {
+            background-color: #1a2a3a;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            border: 1px solid #3d5a71;
+            position: relative;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+
+        .custom-alert-overlay.visible .custom-alert-box {
+            transform: translateY(0);
+        }
+
+        .custom-alert-box h2 {
+            color: #00bfff;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .custom-alert-box p {
+            color: #e0e0e0;
+            font-size: 16px;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .custom-alert-box button {
+            background-color: #00bfff;
+            color: #0d1a26;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .custom-alert-box button:hover {
+            background-color: #0099cc;
+            transform: translateY(-2px);
+        }
+
+        /* Full-screen Embed Styles */
+        .fullscreen-embed-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0d1a26; /* Dark background */
+            z-index: 2500; /* Higher than other overlays */
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .fullscreen-embed-header {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end; /* Align close button to right */
+            padding: 10px 15px;
+            box-sizing: border-box;
+            background-color: #1a2a3a;
+            flex-shrink: 0; /* Don't shrink header */
+        }
+
+        .fullscreen-embed-close {
+            color: #e0e0e0;
+            font-size: 30px;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.2s ease;
+        }
+
+        .fullscreen-embed-close:hover {
+            color: #ff3366;
+        }
+
+        .fullscreen-embed-iframe {
+            width: 100%;
+            height: 100%; /* Take up remaining height */
+            border: none;
+        }
+
+        /* Desktop Layout Specific Styles */
+        @media (min-width: 1024px) {
+            .main-app-container {
+                flex-direction: row; /* Arrange side-by-side on desktop */
+                align-items: flex-start; /* Align items to the top */
+            }
+
+            .left-column {
+                flex: 2; /* Takes 2/3 of the space */
+                height: 100%; /* Ensure it takes full height */
+            }
+
+            .right-column {
+                flex: 1; /* Takes 1/3 of the space */
+                height: 100%; /* Ensure it takes full height */
+                border-left: 1px solid #3d5a71; /* Visual separation */
+            }
+
+            .video-section {
+                flex-shrink: 0; /* Prevent video section from shrinking */
+            }
+
+            .video-details, .actions-section {
+                flex-shrink: 0;
+            }
+
+            .all-channels-section {
+                flex-grow: 1; /* Allow channel section to take remaining height and scroll */
+                overflow-y: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    Loading...
+</div>
+
+<!-- Internet Status Overlay -->
+<div class="internet-status-overlay" id="internetStatusOverlay">
+    <i class="fas fa-wifi-slash icon"></i>
+    <span class="message">No internet connection</span>
+</div>
+
+<div class="custom-alert-overlay" id="customAlertOverlay">
+    <div class="custom-alert-box">
+        <h2 id="customAlertTitle">Notification</h2>
+        <p id="customAlertMessage"></p>
+        <button id="customAlertCloseBtn">OK</button>
+    </div>
+</div>
+
+<div class="main-app-container" id="mainAppContainer">
+    <!-- Left Column for Video Player and Actions -->
+    <div class="left-column">
+        <div class="app-header">
+            <div class="logo">
+                <img src="" alt="Header Logo" id="headerLogo" style="visibility: hidden;"/> 
+                <span id="premiumStatusHeader">Premium</span>
+            </div>
+            <div class="header-icons">
+                <div class="event-icon" id="eventIcon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="category-icon" id="categoryIcon">
+                    <i class="fas fa-list"></i>
+                </div>
+                <div class="bookmark-icon" id="bookmarkIcon">
+                    <i class="fas fa-bookmark"></i>
+                </div>
+                <div class="search-icon" id="searchIcon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="add-link-icon" id="addLinkIcon">
+                    <i class="fas fa-plus"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="video-section">
+            <!-- Main video element for HLS.js streams -->
+            <video id="videoPlayer" controls></video>
+            <!-- Iframe for other embed links -->
+            <iframe id="embedPlayer" allowfullscreen frameborder="0"></iframe>
+            <div class="intro-video-overlay" id="introVideoOverlay">
+                <!-- Intro video element for HLS.js -->
+                <video id="introVideoPlayer" src="" preload="auto" playsinline></video>
+                <button class="skip-button" id="skipIntroButton">Skip Ad (5)</button>
+                <div id="introAdButtonContainer" style="position: absolute; display: none;"></div>
+            </div>
+        </div>
+
+        <div class="video-details">
+            <div class="video-details-top-row">
+                <div class="main-title" id="videoTitle">Loading...</div>
+                <i class="fas fa-bookmark title-bookmark-icon" id="titleBookmarkIcon"></i>
+            </div>
+            <div class="views-info">
+                <span id="viewCount">0</span> Views
+            </div>
+        </div>
+
+        <div class="actions-section">
+            <div class="action-group">
+                <div class="action-button like-btn has-border" id="likeBtn">
+                    <i class="fas fa-thumbs-up"></i> <span id="likeCount">0</span>
+                </div>
+                <div class="action-button dislike-btn" id="dislikeBtn">
+                    <i class="fas fa-thumbs-down"></i> <span id="dislikeCount">0</span>
+                </div>
+            </div>
+            <div class="action-button share-btn" id="shareBtn">
+                <span id="shareCount">0</span> <i class="fas fa-share-alt"></i> <span>Share</span>
+            </div>
+            <div class="action-button profile-btn" id="profileOpenBtn">
+                <i class="fas fa-user"></i> <span>Profile</span>
+            </div>
+            <!-- Added chat button back, but it will open an iframe -->
+            <div class="action-button chat-btn" id="chatOpenBtn">
+                <i class="fas fa-comment"></i> <span>Chat</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column for Channel Lists -->
+    <div class="right-column">
+        <div class="channel-list-titles" id="channelListTitles">
+            <h3 class="active-title" data-source-type="default" data-source-key="default" data-lang-key="all_channels_title">All Channels</h3>
+        </div>
+
+        <div class="all-channels-section" id="allChannelsSection">
+            <ul class="all-channel-grid" id="allChannelGrid">
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+<div class="add-link-overlay" id="addLinkOverlay">
+    <div class="add-link-box-container">
+        <i class="fas fa-times add-link-close-btn" id="closeAddLinkBtn"></i>
+        <h2 data-lang-key="add_link_heading">Add Link</h2>
+        <input type="text" id="linkInput" placeholder="M3U or M3U8 Link..." data-lang-key="link_input_placeholder">
+        <input type="text" id="customListNameInput" placeholder="List Name (required for M3U)" data-lang-key="list_name_placeholder">
+        <button id="addLinkBtn" data-lang-key="add_button">Add</button>
+    </div>
+</div>
+
+
+<div class="category-menu-overlay" id="categoryMenuOverlay">
+    <div class="category-menu-header">
+        <span data-lang-key="categories_heading">Categories</span>
+        <i class="fas fa-times category-menu-close" id="closeCategoryMenuBtn"></i>
+    </div>
+    <ul class="category-list" id="categoryList">
+    </ul>
+</div>
+
+<div class="search-overlay" id="searchOverlay">
+    <div class="search-box-container">
+        <i class="fas fa-times search-close-btn" id="closeSearchBtn"></i>
+        <h2 data-lang-key="search_heading">Search Channel</h2>
+        <div class="search-input-wrapper">
+            <input type="text" id="searchInput" placeholder="Enter channel name..." data-lang-key="search_input_placeholder">
+            <button id="clearSearchBtn">Clear</button>
+        </div>
+        <ul class="search-results-list" id="searchResultsList">
+        </ul>
+    </div>
+</div>
+
+<div class="bookmark-overlay" id="bookmarkOverlay">
+    <div class="bookmark-list-container">
+        <i class="fas fa-times bookmark-close-btn" id="closeBookmarkBtn"></i>
+        <h2 data-lang-key="bookmarks_heading">Bookmarked Channels</h2>
+        <ul class="bookmark-channels-list" id="bookmarkChannelsList">
+        </ul>
+    </div>
+</div>
+
+<!-- This overlay is now just a placeholder in HTML. It will not be directly used for displaying event data. -->
+<div class="event-fullscreen-overlay" id="eventFullscreenOverlay" style="display: none;">
+    <div class="event-fullscreen-header">
+        <span>Live Events</span>
+        <i class="fas fa-times event-fullscreen-close" id="closeEventFullscreenBtn"></i>
+    </div>
+    <div class="event-grid" id="eventGrid">
+        <div class="no-event-message">Loading event data...</div>
+    </div>
+</div>
+
+<!-- REMOVED: Profile overlay content and related elements moved to profile.php -->
+<div class="profile-overlay" id="profileOverlay"></div>
+
+<div class="fullscreen-embed-overlay" id="fullScreenEmbedOverlay">
+    <div class="fullscreen-embed-header">
+        <i class="fas fa-times fullscreen-embed-close" id="closeFullScreenEmbedBtn"></i>
+    </div>
+    <iframe class="fullscreen-embed-iframe" id="fullScreenEmbedIframe" allowfullscreen frameborder="0"></iframe>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
+<script>
+    // Firebase কনফিগারেশন PHP থেকে লোড করা হচ্ছে
+    const firebaseConfig = {"apiKey":"AIzaSyC6xiG5b0yMWkLl4ZN0G4hzpJmoyW_Tp6I","authDomain":"msm-4-39637.firebaseapp.com","projectId":"msm-4-39637","storageBucket":"msm-4-39637.appspot.com","messagingSenderId":"933945465803","appId":"1:933945465803:web:f3c4ce2cc93f901b23f44e","databaseURL":"https:\/\/msm-4-39637-default-rtdb.firebaseio.com"};
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const auth = firebase.auth();
+</script>
+
+<script>
+    // সাইটের কনফিগারেশন PHP থেকে লোড করা হচ্ছে
+    const siteConfig = {"siteName":"LIVE TV & Sports","siteDescription":"\u0986\u09aa\u09a8\u09be\u09b0 \u09aa\u09cd\u09b0\u09bf\u09af\u09bc \u09b2\u09be\u0987\u09ad \u09b8\u09cd\u09aa\u09cb\u09b0\u09cd\u099f\u09b8 \u099a\u09cd\u09af\u09be\u09a8\u09c7\u09b2\u0997\u09c1\u09b2\u09cb \u09a6\u09c7\u0996\u09c1\u09a8 MsM-\u098f!","favicon":"https:\/\/example.com\/your-favicon.ico"};
+    console.log("Site Config:", siteConfig); // For debugging purposes
+</script>
+
+<script>
+    const APP_ACCESS_KEY = "mySuperSecretAppKey123!@#";
+    const GITHUB_CONFIG_URL = 'https://raw.githubusercontent.com/msplayerapp/MsM-BD/refs/heads/main/MsM_TV.json';
+
+    const translations = {
+        'en': {
+            'all_channels_title': 'All Channels',
+            'bangladesh_afghanistan': 'Bangladesh vs Afghanistan: Live Cricket',
+            'views_label': 'Views',
+            'share_button': 'Share',
+            'chat_button': 'Chat',
+            'username_prompt': 'Enter your name to join chat',
+            'username_placeholder': 'Your name...',
+            'join_chat_button': 'Join',
+            'add_link_heading': 'Add Link',
+            'link_input_placeholder': 'M3U or M3U8 Link...',
+            'list_name_placeholder': 'List Name (required for M3U)',
+            'add_button': 'Add',
+            'categories_heading': 'Categories',
+            'search_heading': 'Search Channel',
+            'search_input_placeholder': 'Enter channel name...',
+            'clear_button': 'Clear',
+            'bookmarks_heading': 'Bookmarked Channels',
+            'live_chat_heading': 'Live Chat',
+            'chat_input_placeholder': 'Type your message...',
+            'send_button': 'Send',
+            'link_copied_alert': 'Link copied to clipboard: ',
+            'link_copy_failed_alert': 'Failed to copy link. Please copy manually: ',
+            'please_enter_name': 'Please enter a name.',
+            'enter_list_name': 'Please provide a list name for M3U links.',
+            'unsupported_link_type': 'Only M3U or M3U8 links are supported.',
+            'failed_to_load_m3u': 'Failed to load M3U: ',
+            'list_added_success': 'List added successfully!',
+            'no_channels_found': 'No channels found.',
+            'no_results_found': 'No results found.',
+            'confirm_remove_list_prefix': 'Are you sure you want to remove the list "',
+            'confirm_remove_list_suffix': '"?',
+            'list_removed_success': 'List removed successfully.',
+            'failed_to_remove_list': 'Failed to remove custom M3U list: ',
+            'no_categories_found': 'No categories found.',
+            'default_channels_load_failed': 'Failed to load built-in channels.',
+            'categories_load_failed': 'Failed to load categories.',
+            'custom_m3u_load_failed': 'Failed to load custom M3U lists from Firebase: ',
+            'no_bookmarks_found': 'No bookmarked channels.',
+            'bookmark_removed_success': 'Bookmark removed successfully.',
+            'failed_to_remove_bookmark': 'Error removing bookmark:',
+            'fallback_to_local_storage': 'Falling back to Local Storage for custom M3U lists.',
+            'no_prev_data': 'No previous data found.',
+            'failed_to_load_fallback': 'Failed to load. No previous data found.',
+            'autoplay_failed': 'Autoplay failed:',
+            'video_error': 'Native HLS video error.',
+            'browser_unsupported': 'Your browser does not support this video stream.',
+            'other_channels_none': 'No other channels available at the moment.',
+            'channel_not_found_bookmark': 'Current channel not found in all channels for bookmarking.',
+            'remove_bookmark_title': 'Remove Bookmark',
+            'event_page_title': 'Live Events',
+            'watch_match_button': 'Watch Match',
+            'no_events_found': 'No upcoming events found.',
+            'loading_event_data': 'Loading event data...',
+            'banned_access_denied': 'You are banned from accessing channels. Please contact support.',
+            'premium_required_alert': 'This is a VIP channel. Your premium access has expired or or is not active. Please log in with a premium account.',
+            'login_premium_required': 'This is a VIP channel. Please log in to access premium content.',
+            'premium_status_active': 'Active:',
+            'premium_status_expired': 'Expired',
+            'ban_status_active': 'You Banned for',
+            'ban_2_status_expired': 'Ban Expired',
+            'related_channels_title': 'Related',
+            'friend_list_heading': 'Friend List',
+            'no_friends_yet': 'No recent private chats. Start a chat from public chat.',
+            'active_now': 'Active Now',
+            'active_minutes_ago': 'Active {X}m ago',
+            'active_hours_ago': 'Active {X}h ago',
+            'active_days_ago': 'Active {X}d ago',
+            'offline': 'Offline',
+            'typing_status': '... typing',
+            'get_premium_text': 'Get Premium', /* New translation key for text */
+            'add_balance_text': 'Add +', /* New translation key for text */
+            'no_internet_connection': 'No internet connection' /* New translation key for internet status */
+        },
+        'bn': { // Bengali translations
+            'all_channels_title': 'সব চ্যানেল',
+            'bangladesh_afghanistan': 'বাংলাদেশ বনাম আফগানিস্তান: লাইভ ক্রিকেট',
+            'views_label': 'ভিউ',
+            'share_button': 'শেয়ার করুন',
+            'chat_button': 'চ্যাট',
+            'username_prompt': 'চ্যাটে যোগ দিতে আপনার নাম লিখুন',
+            'username_placeholder': 'আপনার নাম...',
+            'join_chat_button': 'যোগ দিন',
+            'add_link_heading': 'লিঙ্ক যোগ করুন',
+            'link_input_placeholder': 'M3U বা M3U8 লিঙ্ক...',
+            'list_name_placeholder': 'তালিকার নাম (M3U এর জন্য আবশ্যক)',
+            'add_button': 'যোগ করুন',
+            'categories_heading': 'ক্যাটাগরি',
+            'search_heading': 'চ্যানেল অনুসন্ধান করুন',
+            'search_input_placeholder': 'চ্যানেলের নাম লিখুন...',
+            'clear_button': 'পরিষ্কার করুন',
+            'bookmarks_heading': 'বুকমার্ক করা চ্যানেল',
+            'live_chat_heading': 'লাইভ চ্যাট',
+            'chat_input_placeholder': 'আপনার বার্তা লিখুন...',
+            'send_button': 'পাঠান',
+            'link_copied_alert': 'লিঙ্ক ক্লিপবোর্ডে কপি করা হয়েছে: ',
+            'link_copy_failed_alert': 'লিঙ্ক কপি করতে ব্যর্থ। অনুগ্রহ করে ম্যানুয়ালি কপি করুন: ',
+            'please_enter_name': 'অনুগ্রহ করে একটি নাম লিখুন।',
+            'enter_list_name': 'M3U লিঙ্কের জন্য একটি তালিকার নাম দিন।',
+            'unsupported_link_type': 'শুধুমাত্র M3U বা M3U8 লিঙ্ক সমর্থিত।',
+            'failed_to_load_m3u': 'M3U লোড করতে ব্যর্থ: ',
+            'list_added_success': 'তালিকা সফলভাবে যোগ করা হয়েছে!',
+            'no_channels_found': 'কোনো চ্যানেল পাওয়া যায়নি।',
+            'no_results_found': 'কোনো ফলাফল পাওয়া যায়নি।',
+            'confirm_remove_list_prefix': 'আপনি কি নিশ্চিত যে আপনি তালিকাটি সরাতে চান "',
+            'confirm_remove_list_suffix': '"?',
+            'list_removed_success': 'তালিকা সফলভাবে সরানো হয়েছে।',
+            'failed_to_remove_list': 'কাস্টম M3U তালিকা সরাতে ব্যর্থ: ',
+            'no_categories_found': 'কোনো ক্যাটাগরি পাওয়া যায়নি।',
+            'default_channels_load_failed': 'বিল্ট-ইন চ্যানেল লোড করতে ব্যর্থ।',
+            'categories_load_failed': 'ক্যাটাগরি লোড করতে ব্যর্থ।',
+            'custom_m3u_load_failed': 'ফায়ারবেস থেকে কাস্টম M3U তালিকা লোড করতে ব্যর্থ: ',
+            'no_bookmarks_found': 'কোনো বুকমার্ক করা চ্যানেল নেই।',
+            'bookmark_removed_success': 'বুকমার্ক সফলভাবে সরানো হয়েছে।',
+            'failed_to_remove_bookmark': 'বুকমার্ক সরাতে ত্রুটি:',
+            'fallback_to_local_storage': 'কাস্টম M3U তালিকার জন্য লোকাল স্টোরেজে ফিরে যাচ্ছে।',
+            'no_prev_data': 'কোনো পূর্ববর্তী ডেটা পাওয়া যায়নি।',
+            'failed_to_load_fallback': 'লোড করতে ব্যর্থ। কোনো পূর্ববর্তী ডেটা পাওয়া যায়নি।',
+            'autoplay_failed': 'অটো প্লে ব্যর্থ হয়েছে:',
+            'video_error': 'নেটিভ HLS ভিডিও ত্রুটি।',
+            'browser_unsupported': 'আপনার ব্রাউজার এই ভিডিও স্ট্রিম সমর্থন করে না।',
+            'other_channels_none': 'এই মুহূর্তে অন্য কোনো চ্যানেল উপলব্ধ নেই।',
+            'channel_not_found_bookmark': 'বুকমার্ক করার জন্য বর্তমান চ্যানেল সব চ্যানেলে পাওয়া যায়নি।',
+            'remove_bookmark_title': 'বুকমার্ক সরান',
+            'event_page_title': 'লাইভ ইভেন্ট',
+            'watch_match_button': 'ম্যাচ দেখুন',
+            'no_events_found': 'কোনো আসন্ন ইভেন্ট পাওয়া যায়নি।',
+            'loading_event_data': 'ইভেন্ট ডেটা লোড হচ্ছে...',
+            'banned_access_denied': 'আপনাকে চ্যানেল অ্যাক্সেস করা থেকে নিষিদ্ধ করা হয়েছে। অনুগ্রহ করে সাপোর্টের সাথে যোগাযোগ করুন।',
+            'premium_required_alert': 'এটি একটি ভিআইপি চ্যানেল। আপনার প্রিমিয়াম অ্যাক্সেসের মেয়াদ শেষ হয়ে গেছে বা সক্রিয় নেই। অনুগ্রহ করে একটি প্রিমিয়াম অ্যাকাউন্ট দিয়ে লগইন করুন।',
+            'login_premium_required': 'এটি একটি ভিআইপি চ্যানেল। প্রিমিয়াম কন্টেন্ট অ্যাক্সেস করতে লগইন করুন।',
+            'premium_status_active': 'সক্রিয়:',
+            'premium_status_expired': 'মেয়াদ উত্তীর্ণ',
+            'ban_status_active': 'আপনি নিষিদ্ধ হয়েছেন',
+            'ban_2_status_expired': 'নিষেধাজ্ঞার মেয়াদ উত্তীর্ণ',
+            'related_channels_title': 'সম্পর্কিত',
+            'friend_list_heading': 'বন্ধুদের তালিকা',
+            'no_friends_yet': 'কোনো সাম্প্রতিক ব্যক্তিগত চ্যাট নেই। পাবলিক চ্যাট থেকে একটি চ্যাট শুরু করুন।',
+            'active_now': 'এখন সক্রিয়',
+            'active_minutes_ago': '{X} মিনিট আগে সক্রিয়',
+            'active_hours_ago': '{X} ঘন্টা আগে সক্রিয়',
+            'active_days_ago': '{X} দিন আগে সক্রিয়',
+            'offline': 'অফলাইন',
+            'typing_status': '... টাইপ করছে',
+            'get_premium_text': 'প্রিমিয়াম পান',
+            'add_balance_text': 'যোগ করুন +',
+            'no_internet_connection': 'কোনো ইন্টারনেট সংযোগ নেই'
+        }
+    };
+
+    let currentLanguage = 'bn'; // Default to Bengali
+
+    function translateElement(element) {
+        const langKey = element.dataset.langKey;
+        if (langKey && translations[currentLanguage][langKey]) {
+            element.textContent = translations[currentLanguage][langKey];
+        }
+    }
+
+    function applyTranslations() {
+        document.querySelectorAll('[data-lang-key]').forEach(translateElement);
+    }
+
+    // Call applyTranslations initially
+    applyTranslations();
+
+    const likeCountEl = document.getElementById('likeCount');
+    const dislikeCountEl = document.getElementById('dislikeCount');
+    const viewCountEl = document.getElementById('viewCount');
+    const shareCountEl = document.getElementById('shareCount');
+
+    const likeBtn = document.getElementById('likeBtn');
+    const dislikeBtn = document.getElementById('dislikeBtn');
+    const shareBtn = document.getElementById('shareBtn');
+    let userID = localStorage.getItem('uniqueUserID');
+    if (!userID) {
+        userID = 'user_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+        localStorage.setItem('uniqueUserID', userID);
+    }
+
+    const userProfilesRef = db.ref('user_profiles'); // Keep for user profile data
+    const allChannelsFirebaseRef = db.ref('All Channel');
+    const yeashVideoRef = db.ref('yeash_video');
+    const bogaKandeLogoRef = db.ref('Boga_kande');
+    const dukaneJawRef = db.ref('dukane_jaw');
+    const adsConfigRef = db.ref('ads_config');
+    const yeashAdsRef = db.ref('yeash_ads'); // Firebase ref for intro ads
+    const totalTimeRef = db.ref('total_time'); // New Firebase reference for watch time
+
+    const chatOpenBtn = document.getElementById('chatOpenBtn'); // Kept for the new chat iframe functionality
+
+    let currentUsername = '';
+    let currentUserPhotoURL = '';
+    let currentUserID = '';
+    let isPremiumUser = false; // Flag for premium status
+
+    const videoPlayer = document.getElementById('videoPlayer'); // Main video element for HLS.js
+    const embedPlayer = document.getElementById('embedPlayer'); // Iframe for other embeds
+
+    let hlsInstance = null; // To hold the HLS.js instance for main player
+    let hlsIntroInstance = null; // To hold the HLS.js instance for intro video (new)
+
+    const introVideoPlayer = document.getElementById('introVideoPlayer'); // Intro video element
+
+    const videoTitleEl = document.getElementById('videoTitle');
+    const titleBookmarkIcon = document.getElementById('titleBookmarkIcon');
+    const headerLogo = document.getElementById('headerLogo');
+    const premiumStatusHeader = document.getElementById('premiumStatusHeader');
+
+    const addLinkIcon = document.getElementById('addLinkIcon');
+    const addLinkOverlay = document.getElementById('addLinkOverlay');
+    const closeAddLinkBtn = document.getElementById('closeAddLinkBtn');
+    const linkInput = document.getElementById('linkInput');
+    const customListNameInput = document.getElementById('customListNameInput');
+    const addLinkBtn = document.getElementById('addLinkBtn');
+
+    const channelListTitles = document.getElementById('channelListTitles');
+    const allChannelsSection = document.getElementById('allChannelsSection');
+    const allChannelGrid = document.getElementById('allChannelGrid');
+
+    let defaultChannels = [];
+    let customM3ULists = {};
+    let currentActiveChannelList = 'default';
+
+    let allChannelsCombined = [];
+
+    const categoryIcon = document.getElementById('categoryIcon');
+    const categoryMenuOverlay = document.getElementById('categoryMenuOverlay');
+    const closeCategoryMenuBtn = document.getElementById('closeCategoryMenuBtn');
+    const categoryListEl = document.getElementById('categoryList');
+
+    let allCategories = ['All'];
+    let allGroupData = [];
+
+    const searchIcon = document.getElementById('searchIcon');
+    const searchOverlay = document.getElementById('searchOverlay');
+    const closeSearchBtn = document.getElementById('closeSearchBtn');
+    const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const searchResultsList = document.getElementById('searchResultsList');
+
+    const bookmarkIcon = document.getElementById('bookmarkIcon');
+    const bookmarkOverlay = document.getElementById('bookmarkOverlay');
+    const closeBookmarkBtn = document.getElementById('closeBookmarkBtn');
+    const bookmarkChannelsList = document.getElementById('bookmarkChannelsList');
+
+    const eventIcon = document.getElementById('eventIcon');
+    const eventFullscreenOverlay = document.getElementById('eventFullscreenOverlay'); // Keep for hiding, but not for direct content
+    let profileCountdownInterval = null;
+
+    const userBookmarksRef = db.ref(`user_bookmarks/${userID}`);
+    const customM3URef = db.ref(`custom_m3u_lists/${userID}`);
+    const securityConfigRef = db.ref('security_config');
+
+    const mainAppContainer = document.getElementById('mainAppContainer');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const internetStatusOverlay = document.getElementById('internetStatusOverlay'); // New element
+
+    let defaultVideoSrc = '';
+    let defaultVideoTitle = '';
+
+    let currentVideoSrc = '';
+    let currentVideoTitle = '';
+    let currentChannelId = ''; // This holds the ID of the channel currently being displayed
+    let currentPlayingChannelId = ''; // Holds the ID of the channel actually playing
+
+    let currentChannelStatsRef = null;
+
+    const userChannelInteractionsRef = db.ref(`user_channel_interactions/${userID}`);
+    let currentUserLiked = false;
+    let currentUserDisliked = false;
+
+    const profileOpenBtn = document.getElementById('profileOpenBtn');
+    // Removed profileOverlay elements and logic
+    const customAlertOverlay = document.getElementById('customAlertOverlay');
+    const customAlertTitle = document.getElementById('customAlertTitle');
+    const customAlertMessage = document.getElementById('customAlertMessage');
+    const customAlertCloseBtn = document.getElementById('customAlertCloseBtn');
+
+    // New Full-screen Embed elements (reused for chat.php and now event.php)
+    const fullScreenEmbedOverlay = document.getElementById('fullScreenEmbedOverlay');
+    const closeFullScreenEmbedBtn = document.getElementById('closeFullScreenEmbedBtn');
+    const fullScreenEmbedIframe = document.getElementById('fullScreenEmbedIframe');
+
+    // New elements for Intro Video
+    const introVideoOverlay = document.getElementById('introVideoOverlay');
+    const skipIntroButton = document.getElementById('skipIntroButton');
+    const introAdButtonContainer = document.getElementById('introAdButtonContainer'); // Container for ad button
+
+    let introVideoAdCountdownInterval; // For the "Skip Ad (X)" countdown
+    let currentAdData = null; // Store the currently playing ad's data
+
+    // Global variable to hold the listener for the current user's profile
+    let currentUserProfileListener = null;
+
+    // New variables for watch time tracking
+    let currentChannelWatchSessionId = ''; // A unique ID for the current channel's watch session
+    let currentWatchStartTime = 0; // Timestamp when watching started for the current segment
+    let accumulatedWatchTimeSeconds = 0; // Accumulated time for the current channel segment before saving to DB
+    let watchTimeInterval = null; // Interval ID for periodic updates
+
+    // ** Start of fix for asynchronous channel loading **
+    // এই ভেরিয়েবলটি সর্বশেষ অনুরোধের আইডি ধরে রাখবে
+    let currentLoadRequestId = 0;
+    // ** End of fix for fix for asynchronous channel loading **
+
+    window.alert = function(message) {
+        customAlertTitle.textContent = translations[currentLanguage].notification_title || 'Notification';
+        customAlertMessage.textContent = message;
+        customAlertOverlay.classList.add('visible');
+    };
+
+    customAlertCloseBtn.addEventListener('click', () => {
+        customAlertOverlay.classList.remove('visible');
+    });
+
+    customAlertOverlay.addEventListener('click', (event) => {
+        if (event.target === customAlertOverlay) {
+            customAlertOverlay.classList.remove('visible');
+        }
+    });
+
+    // Function to open the full-screen embed overlay
+    function openFullScreenEmbed(url) {
+        fullScreenEmbedIframe.src = url;
+        fullScreenEmbedOverlay.style.display = 'flex';
+        // Close other overlays if any are open
+        closeAllOverlaysExcept(fullScreenEmbedOverlay);
+    }
+
+    // Event listener for the close button on the full-screen embed overlay
+    closeFullScreenEmbedBtn.addEventListener('click', () => {
+        fullScreenEmbedOverlay.style.display = 'none';
+        fullScreenEmbedIframe.src = ''; // Clear the iframe source
+    });
+
+
+    function parseDateString(dateString) {
+        if (!dateString) return null;
+        let parts;
+        // Check for YYYY-MM-DD format
+        if (dateString.includes('-') && dateString.split('-')[0].length === 4) {
+            parts = dateString.split('-');
+            const year = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed
+            const day = parseInt(parts[2], 10);
+            return new Date(year, month, day, 23, 59, 59, 999); // End of day
+        }
+        // Check for DD-MM-YYYY format
+        else if (dateString.includes('-') && dateString.split('-')[0].length === 2 && dateString.split('-')[2].length === 4) {
+            parts = dateString.split('-');
+            const day = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed
+            const year = parseInt(parts[2], 10);
+            return new Date(year, month, day, 23, 59, 59, 999); // End of day
+        }
+        return null;
+    }
+
+    function setupChannelStats(channelId) {
+        if (currentChannelStatsRef) {
+            currentChannelStatsRef.off('value');
+        }
+
+        currentChannelStatsRef = db.ref(`channel_stats/${channelId}`);
+
+        currentChannelStatsRef.child('views').transaction(current => {
+            return (current || 0) + 1;
+        }, (error) => {
+            if (error) {
+                console.error("Firebase transaction for channel views failed:", error);
+            }
+        });
+        
+        currentChannelStatsRef.on('value', snapshot => {
+            const stats = snapshot.val() || { views: 0, likes: 0, dislikes: 0, shares: 0 };
+            viewCountEl.textContent = stats.views || 0;
+            likeCountEl.textContent = stats.likes || 0;
+            dislikeCountEl.textContent = stats.dislikes || 0;
+            shareCountEl.textContent = stats.shares || 0;
+        });
+
+        userChannelInteractionsRef.child(channelId).once('value', snapshot => {
+            const interaction = snapshot.val();
+            currentUserLiked = interaction ? interaction.liked : false;
+            currentUserDisliked = interaction ? interaction.disliked : false;
+        });
+    }
+
+    likeBtn.addEventListener('click', () => {
+        if (!currentChannelId) return;
+
+        currentChannelStatsRef.child('likes').transaction(current => {
+            return (current || 0) + 1;
+        });
+
+        if (currentUserDisliked) {
+            currentChannelStatsRef.child('dislikes').transaction(current => {
+                return Math.max(0, (current || 0) - 1);
+            });
+            userChannelInteractionsRef.child(currentChannelId).update({ disliked: false });
+            currentUserDisliked = false;
+        }
+        userChannelInteractionsRef.child(currentChannelId).update({ liked: true });
+        currentUserLiked = true;
+    });
+
+    dislikeBtn.addEventListener('click', () => {
+        if (!currentChannelId || currentUserDisliked) return;
+
+        currentChannelStatsRef.child('dislikes').transaction(current => {
+            return (current || 0) + 1;
+        });
+
+        if (currentUserLiked) {
+            currentChannelStatsRef.child('likes').transaction(current => {
+                return Math.max(0, (current || 0) - 1);
+            });
+            userChannelInteractionsRef.child(currentChannelId).update({ liked: false });
+            currentUserLiked = false;
+        }
+        userChannelInteractionsRef.child(currentChannelId).update({ disliked: true });
+        currentUserDisliked = true;
+    });
+
+    shareBtn.addEventListener('click', () => {
+        if (!currentChannelId) {
+            window.alert(translations[currentLanguage].no_channel_loaded_to_share || "No channel loaded to share.");
+            return;
+        }
+        currentChannelStatsRef.child('shares').transaction(current => {
+            return (current || 0) + 1;
+        });
+
+        const baseUrl = window.location.origin + window.location.pathname;
+        const shareableLink = `${baseUrl}?channelId=${currentChannelId}`;
+
+        navigator.clipboard.writeText(shareableLink).then(() => {
+            window.alert(`${translations[currentLanguage].link_copied_alert}\n${shareableLink}`);
+        }).catch(err => {
+            window.alert(`${translations[currentLanguage].link_copy_failed_alert}\n${shareableLink}`);
+        });
+    });
+
+    // Function to get current date in YYYY-MM-DD format
+    function getCurrentDateFormatted() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    // Function to start watch time tracking
+    function startWatchTimeTracking(channelId) {
+        if (!channelId) return;
+
+        // Stop any existing tracking
+        stopWatchTimeTracking();
+
+        currentChannelWatchSessionId = channelId;
+        currentWatchStartTime = new Date().getTime();
+        accumulatedWatchTimeSeconds = 0;
+
+        // Start a periodic update for watch time (e.g., every 10 seconds)
+        // Only if the video is actually playing.
+        if (videoPlayer.style.display === 'block' && !videoPlayer.paused && !videoPlayer.ended) {
+            watchTimeInterval = setInterval(() => {
+                if (!videoPlayer.paused && !videoPlayer.ended) {
+                    const now = new Date().getTime();
+                    const sessionDurationMs = now - currentWatchStartTime;
+                    const secondsToAdd = Math.floor(sessionDurationMs / 1000); // Calculate seconds passed since start
+                    
+                    if (secondsToAdd > 0) {
+                        accumulatedWatchTimeSeconds += secondsToAdd;
+                        currentWatchStartTime = now; // Reset start time for next interval
+                        
+                        // console.log(`Accumulated ${accumulatedWatchTimeSeconds}s for ${currentChannelWatchSessionId}`); // Debugging
+                        // For now, let's keep it in memory until pause/end/unload or channel change.
+                    }
+                }
+            }, 10000); // Update every 10 seconds
+        }
+    }
+
+    // Function to stop watch time tracking and save to Firebase
+    async function stopWatchTimeTracking() {
+        if (watchTimeInterval) {
+            clearInterval(watchTimeInterval);
+            watchTimeInterval = null;
+        }
+
+        if (!currentChannelWatchSessionId || accumulatedWatchTimeSeconds === 0) {
+            return; // No active session or no time accumulated
+        }
+
+        const channelId = currentChannelWatchSessionId;
+        const timeSpentSeconds = accumulatedWatchTimeSeconds; // Use accumulated time
+
+        // Reset for next session
+        currentChannelWatchSessionId = '';
+        currentWatchStartTime = 0;
+        accumulatedWatchTimeSeconds = 0;
+
+        if (timeSpentSeconds <= 0) return; // Only save positive watch time
+
+        const today = getCurrentDateFormatted();
+        
+        // Define Firebase paths
+        const channelTotalWatchTimeRef = totalTimeRef.child('channels').child(channelId).child('totalWatchTime');
+        const channelDailyWatchTimeRef = totalTimeRef.child('channels').child(channelId).child('dailyWatchTime').child(today).child('total');
+        const channelLast7DaysRef = totalTimeRef.child('channels').child(channelId).child('last7DaysTotal');
+        const channelLast28DaysRef = totalTimeRef.child('channels').child(channelId).child('last28DaysTotal');
+
+        const globalTotalWatchTimeRef = totalTimeRef.child('global').child('totalWatchTime');
+        const globalDailyWatchTimeRef = totalTimeRef.child('global').child('dailyWatchTime').child(today).child('total');
+        const globalLast7DaysRef = totalTimeRef.child('global').child('last7DaysTotal');
+        const globalLast28DaysRef = totalTimeRef.child('global').child('last28DaysTotal');
+
+        // Update total watch time (channel specific and global)
+        await channelTotalWatchTimeRef.transaction(current => (current || 0) + timeSpentSeconds);
+        await globalTotalWatchTimeRef.transaction(current => (current || 0) + timeSpentSeconds);
+
+        // Update daily watch time (channel specific and global)
+        await channelDailyWatchTimeRef.transaction(current => (current || 0) + timeSpentSeconds);
+        await globalDailyWatchTimeRef.transaction(current => (current || 0) + timeSpentSeconds);
+
+        // Function to sum watch time for a given number of days
+        const sumDailyWatchTime = async (baseRef, days) => {
+            let sum = 0;
+            for (let i = 0; i < days; i++) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                const dailySnapshot = await baseRef.child(formattedDate).child('total').once('value');
+                sum += dailySnapshot.val() || 0;
+            }
+            return sum;
+        };
+
+        // Calculate and update last 7 days total (channel specific and global)
+        const channel7DaySum = await sumDailyWatchTime(totalTimeRef.child('channels').child(channelId).child('dailyWatchTime'), 7);
+        await channelLast7DaysRef.set(channel7DaySum);
+
+        const global7DaySum = await sumDailyWatchTime(totalTimeRef.child('global').child('dailyWatchTime'), 7);
+        await globalLast7DaysRef.set(global7DaySum);
+
+        // Calculate and update last 28 days total (channel specific and global)
+        const channel28DaySum = await sumDailyWatchTime(totalTimeRef.child('channels').child(channelId).child('dailyWatchTime'), 28);
+        await channelLast28DaysRef.set(channel28DaySum);
+
+        const global28DaySum = await sumDailyWatchTime(totalTimeRef.child('global').child('dailyWatchTime'), 28);
+        await globalLast28DaysRef.set(global28DaySum);
+
+        // console.log(`Watch time saved for channel ${channelId}: ${timeSpentSeconds} seconds.`); // Debugging
+    }
+
+    // Event listeners for video player
+    videoPlayer.addEventListener('play', () => {
+        // console.log('Video started playing, initiating watch time tracking.'); // Debugging
+        if (currentPlayingChannelId) { // Ensure a channel is loaded
+            startWatchTimeTracking(currentPlayingChannelId);
+        }
+    });
+
+    videoPlayer.addEventListener('pause', () => {
+        // console.log('Video paused, saving watch time.'); // Debugging
+        stopWatchTimeTracking();
+    });
+
+    videoPlayer.addEventListener('ended', () => {
+        // console.log('Video ended, saving watch time.'); // Debugging
+        stopWatchTimeTracking();
+    });
+
+    // Event listener for beforeunload to save watch time when user leaves the page
+    window.addEventListener('beforeunload', async () => {
+        // This needs to be synchronous or very fast, often not ideal for async operations.
+        // However, Firebase transactions are handled well by onDisconnect.
+        // For manual save, it's best effort.
+        await stopWatchTimeTracking(); // Attempt to save before unload
+    });
+
+    // Function to display the main video player for HLS streams
+    function showMainVideoPlayer(src) {
+        // Destroy HLS.js intro instance if it was active
+        if (hlsIntroInstance) {
+            hlsIntroInstance.destroy();
+            hlsIntroInstance = null;
+        }
+        embedPlayer.style.display = 'none';
+        embedPlayer.src = '';
+        videoPlayer.style.display = 'block'; // Show the main video element
+
+        if (hlsInstance) {
+            hlsInstance.destroy(); // Destroy previous HLS.js instance
+        }
+
+        if (Hls.isSupported()) {
+            hlsInstance = new Hls();
+            hlsInstance.loadSource(src);
+            hlsInstance.attachMedia(videoPlayer);
+            hlsInstance.on(Hls.Events.MANIFEST_PARSED, function () {
+                videoPlayer.play().catch(error => {
+                    console.warn(translations[currentLanguage].autoplay_failed, error);
+                });
+            });
+            hlsInstance.on(Hls.Events.ERROR, function (event, data) {
+                if (data.fatal) {
+                    switch(data.type) {
+                        case Hls.ErrorTypes.NETWORK_ERROR:
+                            console.error("HLS.js fatal network error encountered, try to recover...", data);
+                            hlsInstance.startLoad();
+                            break;
+                        case Hls.ErrorTypes.MEDIA_ERROR:
+                            console.error("HLS.js fatal media error encountered, try to recover...", data);
+                            hlsInstance.recoverMediaError();
+                            break;
+                        default:
+                            hlsInstance.destroy();
+                            window.alert(`${translations[currentLanguage].hls_error_prefix} ${data.details}. ${translations[currentLanguage].attempting_native_playback}.`);
+                            // Fallback to native video if HLS.js fails fatally
+                            videoPlayer.src = src;
+                            videoPlayer.load();
+                            videoPlayer.play().catch(error => console.warn(translations[currentLanguage].native_video_autoplay_failed, error));
+                            break;
+                    }
+                } else {
+                    console.warn("HLS.js non-fatal error:", data);
+                }
+            });
+        } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+            // Native HLS support
+            videoPlayer.src = src;
+            videoPlayer.addEventListener('loadedmetadata', function() {
+                videoPlayer.play().catch(error => {
+                    console.warn(translations[currentLanguage].autoplay_failed, error);
+                });
+            });
+            videoPlayer.addEventListener('error', function(e) {
+                console.error(translations[currentLanguage].video_error, e);
+                window.alert(translations[currentLanguage].video_error);
+            });
+        } else {
+            // Browser does not support HLS
+            window.alert(translations[currentLanguage].browser_unsupported);
+            videoPlayer.style.display = 'none'; // Hide video player if unsupported
+        }
+    }
+
+    // Function to display the iframe player
+    function showIframePlayer(src) {
+        // Destroy HLS.js intro instance if it was active
+        if (hlsIntroInstance) {
+            hlsIntroInstance.destroy();
+            hlsIntroInstance = null;
+        }
+        // Destroy HLS.js instance if it was active
+        if (hlsInstance) {
+            hlsInstance.destroy();
+            hlsInstance = null;
+        }
+        videoPlayer.style.display = 'none'; // Hide main video player
+        embedPlayer.style.display = 'block';
+        embedPlayer.src = src;
+    }
+
+    // ** Start of fix for asynchronous channel loading **
+    // `loadChannel` ফাংশনটি এখন একটি রিকোয়েস্ট আইডি নেয়
+    async function loadChannel(src, title, id, isPremiumChannel = false, relatedCategory = null) {
+        const loadRequestId = Date.now();
+        currentLoadRequestId = loadRequestId;
+        
+        const user = auth.currentUser;
+        const now = new Date().getTime();
+
+        let userProfile = {};
+        if (user) {
+            try {
+                const userProfileSnapshot = await userProfilesRef.child(user.uid).once('value');
+                userProfile = userProfileSnapshot.val() || {};
+            } catch (error) {
+                console.error("Error fetching user profile for premium check:", error);
+            }
+        }
+        
+        const bannedUntilDate = parseDateString(userProfile.bannedUntil);
+        const isBannedActive = userProfile.isBanned && bannedUntilDate && bannedUntilDate.getTime() > now;
+
+        if (isBannedActive) {
+            window.alert(translations[currentLanguage].banned_access_denied); // Show alert, don't load fallback
+            return; // Stop execution
+        }
+
+        if (isPremiumChannel) {
+            if (!user) {
+                window.alert(translations[currentLanguage].login_premium_required); // Show alert, don't load fallback
+                return; // Stop execution
+            }
+
+            const premiumUntilDate = parseDateString(userProfile.premiumUntil);
+            const isPremiumActive = userProfile.isPremium && premiumUntilDate && premiumUntilDate.getTime() > now;
+
+            if (!isPremiumActive) {
+                window.alert(translations[currentLanguage].premium_required_alert); // Show alert, don't load fallback
+                return; // Stop execution
+            }
+        }
+        
+        // এখানে পুরানো অনুরোধ বাতিল করার চেক যোগ করা হয়েছে
+        if (loadRequestId !== currentLoadRequestId) {
+            console.log("Aborting outdated channel load request.");
+            return;
+        }
+
+        // Stop current main video players immediately before playing intro or new channel
+        if (hlsInstance) {
+            hlsInstance.destroy();
+            hlsInstance = null;
+        }
+        videoPlayer.pause();
+        videoPlayer.src = '';
+        embedPlayer.src = ''; // Clear embed player if it was active
+        videoPlayer.style.display = 'none'; // Hide main video player initially
+
+        // Play intro video before loading the channel if user is NOT premium
+        if (!isPremiumUser) { // Check isPremiumUser flag here
+            await playRandomIntroAd(src, title, id, isPremiumChannel, relatedCategory, loadRequestId);
+        } else {
+            // User is premium, load main channel directly
+            loadMainChannelDirectly(src, title, id, isPremiumChannel, relatedCategory, loadRequestId);
+        }
+    }
+
+    // Function to play a random intro ad using HLS.js
+    async function playRandomIntroAd(mainVideoSrc, mainVideoTitle, mainVideoId, isPremiumChannel, relatedCategory, loadRequestId) {
+        // এখানে পুরানো অনুরোধ বাতিল করার চেক যোগ করা হয়েছে
+        if (loadRequestId !== currentLoadRequestId) {
+            console.log("Aborting outdated ad load.");
+            return;
+        }
+
+        try {
+            const adsSnapshot = await yeashAdsRef.once('value');
+            const adsData = adsSnapshot.val();
+            console.log("Fetched Intro Ads Data:", adsData); // Diagnostic log
+            let activeAds = [];
+            const now = new Date().getTime();
+
+            if (adsData) {
+                for (const adKey in adsData) {
+                    if (adsData.hasOwnProperty(adKey)) {
+                        const ad = adsData[adKey];
+                        const validUntilDate = parseDateString(ad.validUntil);
+                        // Check if ad is active and within its validity period
+                        if (ad.videoUrl && ad.status === 'on' && (!validUntilDate || validUntilDate.getTime() > now)) {
+                            activeAds.push({ ...ad, id: adKey });
+                        }
+                    }
+                }
+            }
+            console.log("Active Ads for intro (count):", activeAds.length); // Diagnostic log
+
+            if (activeAds.length > 0) {
+                currentAdData = activeAds[Math.floor(Math.random() * activeAds.length)]; // Select a random ad
+                
+                introVideoOverlay.style.display = 'flex';
+                introVideoPlayer.src = currentAdData.videoUrl;
+                introVideoPlayer.muted = false; // Ensure not muted
+                introVideoPlayer.volume = 1; // Set full volume
+
+                // Destroy previous HLS.js intro instance if it was active
+                if (hlsIntroInstance) {
+                    hlsIntroInstance.destroy();
+                    hlsIntroInstance = null;
+                }
+
+                if (Hls.isSupported()) {
+                    hlsIntroInstance = new Hls();
+                    hlsIntroInstance.loadSource(currentAdData.videoUrl);
+                    hlsIntroInstance.attachMedia(introVideoPlayer);
+                    hlsIntroInstance.on(Hls.Events.MANIFEST_PARSED, function () {
+                        // এখানে পুরানো অনুরোধ বাতিল করার চেক যোগ করা হয়েছে
+                        if (loadRequestId !== currentLoadRequestId) return;
+                        introVideoPlayer.play().then(() => {
+                            console.log("Intro video autoplay with sound succeeded.");
+                            // Autoplay succeeded, start countdown for skip button
+                            let countdownSeconds = currentAdData.skippableAfterSeconds || 5;
+                            skipIntroButton.textContent = `Skip Ad (${countdownSeconds})`;
+                            skipIntroButton.disabled = true;
+                            skipIntroButton.style.display = 'block';
+                            
+                            if (introVideoAdCountdownInterval) clearInterval(introVideoAdCountdownInterval);
+
+                            introVideoAdCountdownInterval = setInterval(() => {
+                                // এখানে পুরানো অনুরোধ বাতিল করার চেক যোগ করা হয়েছে
+                                if (loadRequestId !== currentLoadRequestId) {
+                                    clearInterval(introVideoAdCountdownInterval);
+                                    return;
+                                }
+                                countdownSeconds--;
+                                skipIntroButton.textContent = `Skip Ad (${countdownSeconds})`;
+                                if (countdownSeconds <= 0) {
+                                    clearInterval(introVideoAdCountdownInterval);
+                                    skipIntroButton.textContent = `Skip Ad`;
+                                    skipIntroButton.disabled = false;
+                                }
+                            }, 1000);
+                        }).catch(error => {
+                            console.warn("Intro video autoplay with sound failed, user interaction needed:", error);
+                            introVideoPlayer.pause();
+                            introVideoPlayer.controls = true; // Show controls for manual play
+                            
+                            // Start countdown to enable skip button even if not manually played
+                            let countdownSeconds = currentAdData.skippableAfterSeconds || 5;
+                            if (introVideoAdCountdownInterval) clearInterval(introVideoAdCountdownInterval);
+                            introVideoAdCountdownInterval = setInterval(() => {
+                                // এখানে পুরানো অনুরোধ বাতিল করার চেক যোগ করা হয়েছে
+                                if (loadRequestId !== currentLoadRequestId) {
+                                    clearInterval(introVideoAdCountdownInterval);
+                                    return;
+                                }
+                                countdownSeconds--;
+                                skipIntroButton.textContent = `Play Ad (${countdownSeconds})`; // Indicate manual play needed
+                                if (countdownSeconds <= 0) {
+                                    clearInterval(introVideoAdCountdownInterval);
+                                    skipIntroButton.textContent = `Skip Ad`;
+                                    skipIntroButton.disabled = false;
+                                }
+                            }, 1000);
+
+                            introVideoPlayer.onplay = () => {
+                                // এখানে পুরানো অনুরোধ বাতিল করার চেক যোগ করা হয়েছে
+                                if (loadRequestId !== currentLoadRequestId) {
+                                    return;
+                                }
+                                if (introVideoAdCountdownInterval) clearInterval(introVideoAdCountdownInterval);
+                                let newCountdownSeconds = currentAdData.skippableAfterSeconds || 5;
+                                introVideoAdCountdownInterval = setInterval(() => {
+                                    // এখানে পুরানো অনুরোধ বাতিল করার চেক যোগ করা হয়েছে
+                                    if (loadRequestId !== currentLoadRequestId) {
+                                        clearInterval(introVideoAdCountdownInterval);
+                                        return;
+                                    }
+                                    newCountdownSeconds--;
+                                    skipIntroButton.textContent = `Skip Ad (${newCountdownSeconds})`;
+                                    if (newCountdownSeconds <= 0) {
+                                        clearInterval(introVideoAdCountdownInterval);
+                                        skipIntroButton.textContent = `Skip Ad`;
+                                        skipIntroButton.disabled = false;
+                                    }
+                                }, 1000);
+                            };
+                        });
+                    });
+                    hlsIntroInstance.on(Hls.Events.ERROR, function (event, data) {
+                        // এখানে পুরানো অনুরোধ বাতিল করার চেক যোগ করা হয়েছে
+                        if (loadRequestId !== currentLoadRequestId) return;
+                        if (data.fatal) {
+                            console.error("HLS.js intro fatal error:", data);
+                            window.alert("Intro video error. Falling back to main channel.");
+                            skipIntro(mainVideoSrc, mainVideoTitle, mainVideoId, isPremiumChannel, relatedCategory, loadRequestId);
+                        } else {
+                            console.warn("HLS.js intro non-fatal error:", data);
+                        }
+                    });
+                } else if (introVideoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                    // Native HLS support for intro video
+                    introVideoPlayer.src = currentAdData.videoUrl;
+                    introVideoPlayer.addEventListener('loadedmetadata', function() {
+                        // এখানে পুরানো অনুরোধ বাতিল করার চেক যোগ করা হয়েছে
+                        if (loadRequestId !== currentLoadRequestId) return;
+                        introVideoPlayer.play().catch(error => {
+                            console.warn("Native intro video autoplay failed:", error);
+                            introVideoPlayer.controls = true; // Show controls if autoplay fails
+                        });
+                    });
+                    introVideoPlayer.addEventListener('error', function(e) {
+                        // এখানে পুরানো অনুরোধ বাতিল করার চেক যোগ করা হয়েছে
+                        if (loadRequestId !== currentLoadRequestId) return;
+                        console.error("Native intro video error:", e);
+                        window.alert("Intro video error. Falling back to main channel.");
+                        skipIntro(mainVideoSrc, mainVideoTitle, mainVideoId, isPremiumChannel, relatedCategory, loadRequestId);
+                    });
+                } else {
+                    // Browser does not support HLS for intro video
+                    window.alert("Your browser does not support HLS for intro videos. Falling back to main channel.");
+                    skipIntro(mainVideoSrc, mainVideoTitle, mainVideoId, isPremiumChannel, relatedCategory, loadRequestId);
+                }
+
+                introVideoPlayer.onended = () => {
+                    // এখানে পুরানো অনুরোধ বাতিল করার চেক যোগ করা হয়েছে
+                    if (loadRequestId !== currentLoadRequestId) return;
+                    console.log("Intro video ended.");
+                    skipIntro(mainVideoSrc, mainVideoTitle, mainVideoId, isPremiumChannel, relatedCategory, loadRequestId);
+                };
+
+                skipIntroButton.onclick = () => {
+                    if (!skipIntroButton.disabled) {
+                        skipIntro(mainVideoSrc, mainVideoTitle, mainVideoId, isPremiumChannel, relatedCategory, loadRequestId);
+                    }
+                };
+
+                // Track ad view (increment 'views' count in Firebase)
+                yeashAdsRef.child(currentAdData.id).child('views').transaction(current => (current || 0) + 1,
+                    (error, committed, snapshot) => {
+                        if (error) {
+                            console.error("Firebase transaction for ad views failed:", error);
+                        } else if (!committed) {
+                            console.warn("Firebase transaction for ad views was aborted.");
+                        } else {
+                            // console.log("Ad view incremented successfully."); // For debugging
+                        }
+                    }
+                );
+
+                // Render custom button if available
+                renderAdButton(currentAdData);
+
+            } else {
+                // No active ads found, load main channel directly
+                loadMainChannelDirectly(mainVideoSrc, mainVideoTitle, mainVideoId, isPremiumChannel, relatedCategory, loadRequestId);
+            }
+
+        } catch (error) {
+            console.error("Error fetching or playing intro ad:", error);
+            // Fallback to main channel if ad loading fails
+            loadMainChannelDirectly(mainVideoSrc, mainVideoTitle, mainVideoId, isPremiumChannel, relatedCategory, loadRequestId);
+        }
+    }
+
+    // Function to render the custom ad button
+    function renderAdButton(adData) {
+        const buttonContainer = document.getElementById('introAdButtonContainer');
+        buttonContainer.innerHTML = ''; // Clear previous button
+
+        if (adData.buttonText && adData.buttonLink && adData.buttonPosition) {
+            const adButton = document.createElement('button');
+            adButton.textContent = adData.buttonText;
+            adButton.classList.add('ad-custom-button'); // Add a class for styling
+
+            // Apply positioning based on adData.buttonPosition
+            buttonContainer.style.display = 'block'; // Show container
+            buttonContainer.style.position = 'absolute';
+            buttonContainer.style.zIndex = '102'; // Above video and skip button
+
+            // Reset all positioning styles first
+            buttonContainer.style.top = '';
+            buttonContainer.style.bottom = '';
+            buttonContainer.style.left = '';
+            buttonContainer.style.right = '';
+            buttonContainer.style.transform = '';
+            buttonContainer.style.display = 'flex'; // Use flex for centering within the container
+            buttonContainer.style.justifyContent = 'center';
+            buttonContainer.style.alignItems = 'center';
+
+
+            switch (adData.buttonPosition) {
+                case 'bottom-left':
+                    buttonContainer.style.bottom = '20px';
+                    buttonContainer.style.left = '20px';
+                    buttonContainer.style.justifyContent = 'flex-start';
+                    buttonContainer.style.alignItems = 'flex-end';
+                    break;
+                case 'bottom-right':
+                    buttonContainer.style.bottom = '20px';
+                    buttonContainer.style.right = '20px';
+                    buttonContainer.style.justifyContent = 'flex-end';
+                    buttonContainer.style.alignItems = 'flex-end';
+                    break;
+                case 'top-left':
+                    buttonContainer.style.top = '20px';
+                    buttonContainer.style.left = '20px';
+                    buttonContainer.style.justifyContent = 'flex-start';
+                    buttonContainer.style.alignItems = 'flex-start';
+                    break;
+                case 'top-right':
+                    buttonContainer.style.top = '20px';
+                    buttonContainer.style.right = '20px';
+                    buttonContainer.style.justifyContent = 'flex-end';
+                    buttonContainer.style.alignItems = 'flex-start';
+                    break;
+                case 'center':
+                    buttonContainer.style.top = '50%';
+                    buttonContainer.style.left = '50%';
+                    buttonContainer.style.transform = 'translate(-50%, -50%)';
+                    buttonContainer.style.justifyContent = 'center';
+                    buttonContainer.style.alignItems = 'center';
+                    break;
+                default: // Default to bottom-center
+                    buttonContainer.style.bottom = '20px';
+                    buttonContainer.style.left = '50%';
+                    buttonContainer.style.transform = 'translateX(-50%)';
+                    buttonContainer.style.justifyContent = 'center';
+                    buttonContainer.style.alignItems = 'flex-end';
+                    break;
+            }
+
+            adButton.addEventListener('click', () => {
+                // Track button click (increment 'clicks' count in Firebase)
+                if (currentAdData && currentAdData.id) {
+                    yeashAdsRef.child(currentAdData.id).child('clicks').transaction(current => (current || 0) + 1,
+                        (error, committed, snapshot) => {
+                            if (error) {
+                                console.error("Firebase transaction for ad clicks failed:", error);
+                            } else if (!committed) {
+                                console.warn("Firebase transaction for ad clicks was aborted.");
+                            } else {
+                                // console.log("Ad click incremented successfully."); // For debugging
+                            }
+                        }
+                    );
+                }
+                window.open(adData.buttonLink, '_blank');
+            });
+            buttonContainer.appendChild(adButton);
+        } else {
+            buttonContainer.style.display = 'none'; // Hide if no button data
+        }
+    }
+
+    // Modified skipIntro to accept parameters for loading main channel
+    function skipIntro(mainVideoSrc, mainVideoTitle, mainVideoId, isPremiumChannel, relatedCategory, loadRequestId) {
+        // এখানে পুরানো অনুরোধ বাতিল করার চেক যোগ করা হয়েছে
+        if (loadRequestId !== currentLoadRequestId) {
+            console.log("Aborting outdated skip request.");
+            return;
+        }
+
+        if (hlsIntroInstance) {
+            hlsIntroInstance.destroy(); // Stop and remove HLS.js intro instance
+            hlsIntroInstance = null;
+        }
+        introVideoPlayer.pause();
+        introVideoPlayer.currentTime = 0; // Reset video to start
+        introVideoPlayer.controls = false;
+        introVideoOverlay.style.display = 'none';
+        if (introVideoAdCountdownInterval) {
+            clearInterval(introVideoAdCountdownInterval);
+            introVideoAdCountdownInterval = null;
+        }
+        document.getElementById('introAdButtonContainer').innerHTML = '';
+        document.getElementById('introAdButtonContainer').style.display = 'none';
+        loadMainChannelDirectly(mainVideoSrc, mainVideoTitle, mainVideoId, isPremiumChannel, relatedCategory, loadRequestId);
+    }
+
+
+    // New helper function to load main channel directly without intro logic
+    function loadMainChannelDirectly(src, title, id, isPremiumChannel, relatedCategory, loadRequestId) {
+        // এখানে পুরানো অনুরোধ বাতিল করার চেক যোগ করা হয়েছে
+        if (loadRequestId !== currentLoadRequestId) {
+            console.log("Aborting outdated channel load.");
+            return;
+        }
+        
+        currentVideoSrc = src;
+        currentVideoTitle = title;
+        currentChannelId = id;
+        videoTitleEl.textContent = title;
+
+        setupChannelStats(currentChannelId);
+
+        if (src.endsWith('.m3u8') || src.endsWith('.ts')) {
+            showMainVideoPlayer(src); // Use HLS.js for HLS/TS streams
+        } else {
+            showIframePlayer(src); // Use iframe for other links
+        }
+        closeAllOverlays();
+        updateBookmarkButtonState(currentChannelId);
+
+        if (relatedCategory) {
+            displayRelatedChannels(relatedCategory);
+        } else {
+            switchChannelList('default');
+            removeDynamicTabs();
+            const defaultTab = document.querySelector('.channel-list-titles h3[data-source-type="default"]');
+            if (defaultTab) {
+                updateActiveChannelListTitle(defaultTab);
+            }
+        }
+        currentPlayingChannelId = id; // Update the playing ID at the end of a successful load
+    }
+    // ** End of fix for asynchronous channel loading **
+
+    document.addEventListener('DOMContentLoaded', async function () {
+        loadingOverlay.style.display = 'flex';
+        try {
+            const logoDataPromise = bogaKandeLogoRef.once('value').then(snapshot => snapshot.val());
+            const defaultVideoDataPromise = yeashVideoRef.once('value').then(snapshot => snapshot.val());
+            const initialAllChannelsPromise = allChannelsFirebaseRef.once('value').then(snapshot => snapshot.val());
+            const customM3UListsPromise = customM3URef.once('value').then(snapshot => {
+                const firebaseCustomM3U = snapshot.val() || {};
+                localStorage.setItem('customM3ULists', JSON.stringify(firebaseCustomM3U));
+                return firebaseCustomM3U;
+            });
+            const adsConfigPromise = adsConfigRef.once('value').then(snapshot => snapshot.val());
+            const bookmarksPromise = userBookmarksRef.once('value').then(snapshot => {
+                const firebaseBookmarks = snapshot.val() || {};
+                localStorage.setItem('userBookmarks', JSON.stringify(firebaseBookmarks));
+                return firebaseBookmarks;
+            });
+
+            const [
+                logoData,
+                yeashVideoData,
+                firebaseChannelsData,
+                firebaseCustomM3U,
+                adsConfig,
+                firebaseBookmarks
+            ] = await Promise.all([
+                logoDataPromise,
+                defaultVideoDataPromise,
+                initialAllChannelsPromise,
+                customM3UListsPromise,
+                adsConfigPromise,
+                bookmarksPromise
+            ]);
+
+            console.log("Firebase Channels Data (DOMContentLoaded):", firebaseChannelsData); // Diagnostic log
+            console.log("Ads Config (DOMContentLoaded):", adsConfig); // Diagnostic log
+
+            // Process logo data
+            if (logoData && logoData.logo_url) {
+                headerLogo.src = logoData.logo_url;
+                headerLogo.style.visibility = 'visible';
+                headerLogo.onerror = () => { headerLogo.style.visibility = 'hidden'; };
+            } else {
+                headerLogo.src = "https://blogger.googleusercontent.com/img/a/AVvXsEgbuJ1rxtHvaynErboODUyLM-aHw822buNfEteS1_iMlcGJfDzD9iSD-9578GpRN8VPxiYu86NQO34X51k-98fRHKP7l3DCekpH_5rDpfxSU0WxL4Efs7Zqp5zn4Enc-i3sF-ASji8y0sl_1MiNw_Q2SPAFHInAIzzOpBrzxjGRTO8uEKI-Fnxxmx1otao=s1200";
+                headerLogo.style.visibility = 'visible';
+                headerLogo.onerror = () => { headerLogo.style.visibility = 'hidden'; };
+            }
+
+            // Process default video data
+            if (yeashVideoData) {
+                if (yeashVideoData.Video && yeashVideoData.Title) {
+                    defaultVideoSrc = yeashVideoData.Video;
+                    defaultVideoTitle = yeashVideoData.Title;
+                } else {
+                    defaultVideoSrc = 'https://cloudfrontnet.vercel.app/tplay/playout/209611/master.m3u8';
+                    defaultVideoTitle = 'Default Fallback Channel';
+                }
+            } else {
+                defaultVideoSrc = 'https://cloudfrontnet.vercel.app/tplay/playout/209611/master.m3u8';
+                defaultVideoTitle = 'Default Fallback Channel';
+            }
+
+
+            // Process all channels data (used to populate defaultChannels and allGroupData)
+            let fetchedChannels = [];
+            let fetchedCategories = new Set(['All']);
+            allGroupData = [];
+            if (firebaseChannelsData) {
+                for (const groupNameKey in firebaseChannelsData) {
+                    if (firebaseChannelsData.hasOwnProperty(groupNameKey)) {
+                        
+                        const group = firebaseChannelsData[groupNameKey]; // Ensure group is defined
+                        const groupStatus = group.status || 'on';
+                        if (groupStatus === 'off') {
+                            continue;
+                        }
+
+                        const groupOrder = group.order ? parseInt(group.order, 10) : Infinity;
+                        const groupIsPremium = group.premium === 'on';
+                        const groupLogo = group.logo || '';
+
+                        allGroupData.push({ name: groupNameKey, order: groupOrder, logo: groupLogo, originalData: group });
+
+                        let channelsInGroup = [];
+                        for (const channelId in group) {
+                            if (group.hasOwnProperty(channelId) && typeof group[channelId] === 'object' && group[channelId] !== null && group[channelId].name) {
+                                const channel = group[channelId];
+                                
+                                const channelStatus = channel.status || groupStatus;
+                                if (channelStatus === 'off') {
+                                    continue;
+                                }
+
+                                const channelIsPremium = (channel.premium === 'on') || groupIsPremium;
+                                const channelOrder = channel.order ? parseInt(channel.order, 10) : Infinity;
+
+                                channelsInGroup.push({
+                                    id: channelId,
+                                    name: channel.name,
+                                    logo: channel.logo,
+                                    url: channel.url,
+                                    category: groupNameKey,
+                                    isPremium: channelIsPremium,
+                                    order: channelOrder
+                                });
+                            }
+                        }
+                        channelsInGroup.sort((a, b) => a.order - b.order);
+                        fetchedChannels = fetchedChannels.concat(channelsInGroup);
+                    }
+                }
+            }
+            allGroupData.sort((a, b) => {
+                if (a.order !== b.order) {
+                    return a.order - b.order;
+                }
+                return a.name.localeCompare(b.name);
+            });
+            fetchedCategories.add('All');
+            allGroupData.forEach(g => fetchedCategories.add(g.name));
+            defaultChannels = fetchedChannels;
+            allCategories = Array.from(fetchedCategories).sort();
+            updateAllChannelsCombined();
+            displayChannelListTitles();
+
+            customM3ULists = firebaseCustomM3U; // ensure customM3ULists is set
+
+            updateBookmarkButtonState(currentChannelId);
+
+
+            const defaultChannelId = 'default_channel_' + btoa(defaultVideoSrc).replace(/=/g, '').substring(0, 8);
+            currentChannelId = defaultChannelId;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const channelIdFromUrl = urlParams.get('channelId');
+
+            // Initial load: load default video and all channels
+            if (channelIdFromUrl) {
+                const channelToLoad = allChannelsCombined.find(c => c.id === channelIdFromUrl);
+                if (channelToLoad && (channelToLoad.status || 'on') === 'on') {
+                    // Use loadMainChannelDirectly for initial load from URL
+                    loadMainChannelDirectly(channelToLoad.url, channelToLoad.name, channelToLoad.id, channelToLoad.isPremium, channelToLoad.category, currentLoadRequestId);
+                    window._channelLoadedFromUrl = true;
+                } else {
+                    window.alert(`Channel with ID "${channelIdFromUrl}" not found or is offline. Loading default channel.`);
+                    // Use loadMainChannelDirectly for initial fallback
+                    loadMainChannelDirectly(defaultVideoSrc, defaultVideoTitle, currentChannelId, false, null, currentLoadRequestId);
+                }
+            } else {
+                // Use loadMainChannelDirectly for initial default load
+                loadMainChannelDirectly(defaultVideoSrc, defaultVideoTitle, currentChannelId, false, null, currentLoadRequestId);
+            }
+
+            console.log("Final check: allChannelsSection.offsetHeight:", allChannelsSection.offsetHeight); // Diagnostic log
+            console.log("Final check: allChannelGrid.offsetHeight:", allChannelGrid.offsetHeight);     // Diagnostic log
+
+        } catch (error) {
+            console.error("Initialization failed:", error);
+            window.alert("Initialization Failed! Failed to load essential data. Please check your internet connection or try again later.");
+        } finally {
+            loadingOverlay.style.display = 'none';
+        }
+    });
+
+    // Function to update all instances of the current user's avatar in the UI
+    function updateAllUserAvatarsInUI() {
+        const user = auth.currentUser;
+        if (!user) {
+            // No logged-in user, no avatars to update for current user
+            return;
+        }
+
+        // Removed logic for profile image in profile overlay
+    }
+
+    // New chat button event listener to open chat.php in an iframe
+    chatOpenBtn.addEventListener('click', () => {
+        openFullScreenEmbed('/chat.php'); // Load chat.php in the fullscreen embed overlay
+    });
+
+
+    addLinkIcon.addEventListener('click', () => {
+        addLinkOverlay.style.display = 'flex';
+        closeAllOverlaysExcept(addLinkOverlay);
+        linkInput.focus();
+    });
+
+    closeAddLinkBtn.addEventListener('click', () => {
+        addLinkOverlay.style.display = 'none';
+        linkInput.value = '';
+        customListNameInput.value = '';
+    });
+
+    addLinkBtn.addEventListener('click', async () => {
+        const link = linkInput.value.trim();
+        const customListName = customListNameInput.value.trim();
+
+        if (!link) {
+            window.alert(translations[currentLanguage].please_enter_link || "Please enter a link.");
+            return;
+        }
+
+        addLinkOverlay.style.display = 'none';
+        
+        // ** Start of fix for asynchronous channel loading **
+        // addLinkBtn এ ক্লিক করলে একটি নতুন রিকোয়েস্ট আইডি জেনারেট করা
+        const loadRequestId = Date.now();
+        currentLoadRequestId = loadRequestId;
+        // ** End of fix for asynchronous channel loading **
+
+        if (link.endsWith('.m3u8') || link.endsWith('.ts')) {
+            loadChannel(link, "Custom Stream", 'custom_stream_' + Date.now(), false, null);
+        } else if (link.endsWith('.m3u')) {
+            if (!customListName) {
+                window.alert(translations[currentLanguage].enter_list_name);
+                addLinkOverlay.style.display = 'flex';
+                return;
+            }
+            try {
+                const response = await fetch(link);
+                if (!response.ok) {
+                    throw new Error(`${translations[currentLanguage].http_error_status}: ${response.status}`);
+                }
+                const text = await response.text();
+                const { channels: newChannels } = parseM3U(text);
+
+                const newM3UKey = customM3URef.push().key;
+                const m3uData = {
+                    name: customListName,
+                    url: link,
+                    channels: newChannels
+                };
+                await customM3URef.child(newM3UKey).set(m3uData);
+                
+                window.alert(`${translations[currentLanguage].list_added_success}`);
+            } catch (error) {
+                console.error("Failed to load M3U:", error);
+                window.alert(`${translations[currentLanguage].failed_to_load_m3u} ${error.message}`);
+            }
+        } else {
+            loadChannel(link, "Custom Embed", 'custom_embed_' + Date.now(), false, null);
+        }
+        linkInput.value = '';
+        customListNameInput.value = '';
+    });
+
+    function parseM3U(m3uContent) {
+        const lines = m3uContent.split('\n');
+        const channels = [];
+        const categories = new Set();
+        let currentChannel = {};
+
+        for (const line of lines) {
+            const trimmedLine = line.trim();
+            if (trimmedLine.startsWith('#EXTINF:')) {
+                const nameMatch = /#EXTINF:.*,(.*)/.exec(trimmedLine);
+                if (nameMatch && nameMatch[1]) {
+                    currentChannel.name = nameMatch[1].trim();
+                }
+
+                const logoMatch = /tvg-logo="([^"]+)"/.exec(trimmedLine);
+                if (logoMatch && logoMatch[1]) {
+                    currentChannel.logo = logoMatch[1].trim();
+                } else {
+                    currentChannel.logo = '';
+                }
+
+                const groupMatch = /group-title="([^"]+)"/.exec(trimmedLine);
+                if (groupMatch && groupMatch[1]) {
+                    currentChannel.category = groupMatch[1].trim();
+                    categories.add(currentChannel.category);
+                } else {
+                    currentChannel.category = 'Uncategorized';
+                    categories.add('Uncategorized');
+                }
+
+                const statusMatch = /status="([^"]+)"/.exec(trimmedLine);
+                currentChannel.status = statusMatch ? statusMatch[1].trim() : 'on';
+
+                const premiumMatch = /premium="([^"]+)"/.exec(trimmedLine);
+                currentChannel.isPremium = premiumMatch ? (premiumMatch[1].trim() === 'on') : false;
+
+                const orderMatch = /order="(\d+)"/.exec(trimmedLine);
+                currentChannel.order = orderMatch ? parseInt(orderMatch[1], 10) : Infinity;
+
+                const rawId = currentChannel.name || '';
+                currentChannel.id = (rawId.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase() || 'channel') + '_' + btoa(trimmedLine).substring(0, 8).replace(/=/g, '');
+
+            } else if (trimmedLine && !trimmedLine.startsWith('#')) {
+                currentChannel.url = trimmedLine;
+                if (currentChannel.name && currentChannel.url && currentChannel.id) {
+                    channels.push(currentChannel);
+                }
+                currentChannel = {};
+            }
+        }
+        return { channels, categories: Array.from(categories).sort() };
+    }
+
+    async function fetchAllChannelsFromFirebase() {
+        return new Promise((resolve, reject) => {
+            allChannelsFirebaseRef.once('value')
+                .then(snapshot => {
+                    const firebaseChannelsData = snapshot.val();
+                    let fetchedChannels = [];
+                    let fetchedCategories = new Set(['All']);
+                    allGroupData = [];
+
+                    if (firebaseChannelsData) {
+                        for (const groupNameKey in firebaseChannelsData) {
+                            if (firebaseChannelsData.hasOwnProperty(groupNameKey)) {
+                                
+                                const group = firebaseChannelsData[groupNameKey]; // Ensure group is defined
+                                const groupStatus = group.status || 'on';
+                                if (groupStatus === 'off') {
+                                    continue;
+                                }
+
+                                const groupOrder = group.order ? parseInt(group.order, 10) : Infinity;
+                                const groupIsPremium = group.premium === 'on';
+                                const groupLogo = group.logo || '';
+
+                                allGroupData.push({ name: groupNameKey, order: groupOrder, logo: groupLogo, originalData: group });
+
+                                let channelsInGroup = [];
+                                for (const channelId in group) {
+                                    if (group.hasOwnProperty(channelId) && typeof group[channelId] === 'object' && group[channelId] !== null && group[channelId].name) {
+                                        const channel = group[channelId];
+                                        
+                                        const channelStatus = channel.status || groupStatus;
+                                        if (channelStatus === 'off') {
+                                            continue;
+                                        }
+
+                                        const channelIsPremium = (channel.premium === 'on') || groupIsPremium;
+                                        const channelOrder = channel.order ? parseInt(channel.order, 10) : Infinity;
+
+                                        channelsInGroup.push({
+                                            id: channelId,
+                                            name: channel.name,
+                                            logo: channel.logo,
+                                            url: channel.url,
+                                            category: groupNameKey,
+                                            isPremium: channelIsPremium,
+                                            order: channelOrder
+                                        });
+                                    }
+                                }
+                                channelsInGroup.sort((a, b) => a.order - b.order);
+                                fetchedChannels = fetchedChannels.concat(channelsInGroup);
+                            }
+                        }
+                    }
+
+                    allGroupData.sort((a, b) => {
+                        if (a.order !== b.order) {
+                            return a.order - b.order;
+                        }
+                        return a.name.localeCompare(b.name);
+                    });
+
+                    fetchedCategories.add('All');
+                    allGroupData.forEach(g => fetchedCategories.add(g.name));
+
+                    defaultChannels = fetchedChannels;
+                    allCategories = Array.from(fetchedCategories).sort();
+                    updateAllChannelsCombined();
+                    displayChannelListTitles();
+                    resolve();
+                })
+                .catch(error => {
+                    console.error("Failed to fetch all channels from Firebase:", error);
+                    window.alert(translations[currentLanguage].default_channels_load_failed);
+                    const allChannelsErrorItem = document.createElement('li');
+                    allChannelsErrorItem.textContent = translations[currentLanguage].default_channels_load_failed;
+                    allChannelsErrorItem.style.color = '#a0a0a0';
+                    allChannelsErrorItem.style.gridColumn = '1 / -1';
+                    allChannelGrid.appendChild(allChannelsErrorItem);
+                    const categoryErrorItem = document.createElement('li');
+                    categoryErrorItem.style.color = '#a0a0a0';
+                    categoryErrorItem.textContent = translations[currentLanguage].categories_load_failed;
+                    categoryListEl.appendChild(categoryErrorItem);
+                    reject(error);
+                });
+        });
+    }
+
+    function updateAllChannelsCombined() {
+        allChannelsCombined = [...defaultChannels];
+        const newAllCategories = new Set(['All']);
+
+        defaultChannels.forEach(channel => {
+            if (channel.category) newAllCategories.add(channel.category);
+        });
+
+        for (const key in customM3ULists) {
+            if (customM3ULists.hasOwnProperty(key)) {
+                const customList = customM3ULists[key];
+                customList.channels.forEach(channel => {
+                    if (!channel.category && customList.name) {
+                        channel.category = customList.name;
+                    }
+                    allChannelsCombined.push(channel);
+                    if (channel.category) newAllCategories.add(channel.category);
+                });
+            }
+        }
+        allChannelsCombined.sort((a, b) => (a.order || Infinity) - (b.order || Infinity));
+        allCategories = Array.from(newAllCategories).sort();
+    }
+
+    function displayAllChannels(channelsToDisplay) {
+        allChannelGrid.innerHTML = '';
+
+        if (channelsToDisplay.length === 0) {
+            console.log("No channels to display. Appending 'no channels found' message."); // Diagnostic log
+            const noChannelsItem = document.createElement('li');
+            noChannelsItem.textContent = translations[currentLanguage].no_channels_found;
+            noChannelsItem.style.color = '#a0a0a0';
+            noChannelsItem.style.gridColumn = '1 / -1';
+            allChannelGrid.appendChild(noChannelsItem);
+            return;
+        }
+
+        channelsToDisplay.sort((a, b) => (a.order || Infinity) - (b.order || Infinity));
+
+        channelsToDisplay.forEach(channel => {
+            const isPremium = channel.isPremium;
+            if ((channel.status || 'on') === 'off') {
+                return;
+            }
+
+            const listItem = document.createElement('li');
+            listItem.classList.add('all-channel-item');
+            
+            listItem.innerHTML = `
+                <div class="channel-icon-small">
+                    ${channel.logo ? `<img src="${channel.logo}" alt="${channel.name} Logo" style="width: 100%; height: 100%; border-radius: 50%;">` : channel.name.charAt(0).toUpperCase()}
+                </div>
+                <span class="channel-name-small">${channel.name} ${isPremium ? '⭐' : ''}</span>
+            `;
+            listItem.dataset.src = channel.url;
+            listItem.dataset.title = channel.name;
+            listItem.dataset.id = channel.id;
+            listItem.dataset.isPremium = isPremium;
+            listItem.dataset.status = channel.status;
+            listItem.dataset.category = channel.category;
+
+            listItem.addEventListener('click', (e) => {
+                const src = e.currentTarget.dataset.src;
+                const title = e.currentTarget.dataset.title;
+                const id = e.currentTarget.dataset.id;
+                const isPremiumChannel = e.currentTarget.dataset.isPremium === 'true';
+                const category = e.currentTarget.dataset.category;
+                loadChannel(src, title, id, isPremiumChannel, category); // This will now trigger intro video logic
+            });
+            allChannelGrid.appendChild(listItem);
+        });
+    }
+
+    function displayChannelListTitles(mode = 'default', contextData = null) {
+        channelListTitles.innerHTML = '';
+
+        const defaultTitle = document.createElement('h3');
+        defaultTitle.textContent = translations[currentLanguage].all_channels_title;
+        defaultTitle.dataset.sourceType = 'default';
+        defaultTitle.dataset.sourceKey = 'default';
+        defaultTitle.addEventListener('click', () => {
+            switchChannelList('default');
+            removeDynamicTabs();
+        });
+        channelListTitles.appendChild(defaultTitle);
+
+        if (mode === 'category' && contextData) {
+            const categoryTitle = document.createElement('h3');
+            categoryTitle.textContent = contextData;
+            categoryTitle.dataset.sourceType = 'category-filter';
+            categoryTitle.dataset.sourceKey = contextData;
+            categoryTitle.classList.add('dynamic-tab');
+            categoryTitle.addEventListener('click', () => {
+                const channelsToFilter = allChannelsCombined;
+                const filteredChannels = channelsToFilter.filter(channel =>
+                    channel.category === contextData && (channel.status || 'on') === 'on'
+                );
+                displayAllChannels(filteredChannels);
+                updateActiveChannelListTitle(categoryTitle);
+            });
+            channelListTitles.appendChild(categoryTitle);
+        } else if (mode === 'related' && contextData) {
+            const relatedTitle = document.createElement('h3');
+            relatedTitle.textContent = translations[currentLanguage].related_channels_title;
+            relatedTitle.dataset.sourceType = 'related-filter';
+            relatedTitle.dataset.sourceKey = contextData;
+            relatedTitle.classList.add('dynamic-tab');
+            relatedTitle.addEventListener('click', () => {
+                displayRelatedChannels(contextData);
+                updateActiveChannelListTitle(relatedTitle);
+            });
+            channelListTitles.appendChild(relatedTitle);
+        }
+
+        const sortedCustomM3UKeys = Object.keys(customM3ULists).sort((a, b) => {
+            const listA = customM3ULists[a];
+            const listB = customM3ULists[b];
+            const orderA = listA.order ? parseInt(listA.order, 10) : Infinity;
+            const orderB = listB.order ? parseInt(listB.order, 10) : Infinity;
+
+            if (orderA !== orderB) {
+                return orderA - b.order;
+            }
+            return listA.name.localeCompare(listB.name);
+        });
+
+        sortedCustomM3UKeys.forEach(key => {
+            const customList = customM3ULists[key];
+            if (customList.status === 'off') {
+                return;
+            }
+
+            const customTitle = document.createElement('h3');
+            customTitle.textContent = customList.name;
+            customTitle.dataset.sourceType = 'custom';
+            customTitle.dataset.sourceKey = key;
+            customTitle.addEventListener('click', () => {
+                switchChannelList(key);
+                removeDynamicTabs();
+            });
+
+            const removeBtn = document.createElement('button');
+            removeBtn.classList.add('remove-custom-m3u-btn');
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.title = `${translations[currentLanguage].remove_bookmark_title} "${customList.name}"`;
+            removeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                removeCustomM3U(key, customList.name);
+            });
+            customTitle.appendChild(removeBtn);
+            channelListTitles.appendChild(customTitle);
+        });
+        updateActiveChannelListTitle();
+    }
+
+    function removeDynamicTabs() {
+        document.querySelectorAll('.channel-list-titles .dynamic-tab').forEach(tab => {
+            tab.remove();
+        });
+    }
+
+    function switchChannelList(sourceKey) {
+        currentActiveChannelList = sourceKey;
+        let channelsToShow = [];
+        if (sourceKey === 'default') {
+            channelsToShow = defaultChannels;
+        } else {
+            channelsToShow = customM3ULists[sourceKey]?.channels || [];
+            channelsToShow = channelsToShow.filter(channel => (channel.status || 'on') === 'on');
+        }
+        displayAllChannels(channelsToShow);
+        updateActiveChannelListTitle(document.querySelector('.channel-list-titles h3[data-source-type="default"]'));
+    }
+
+    function updateActiveChannelListTitle(activeTabElement = null) {
+        document.querySelectorAll('.channel-list-titles h3').forEach(titleEl => {
+            titleEl.classList.remove('active-title');
+        });
+
+        if (activeTabElement) {
+            activeTabElement.classList.add('active-title');
+        } else {
+            const defaultTab = document.querySelector('.channel-list-titles h3[data-source-type="default"]');
+            if (defaultTab) {
+                defaultTab.classList.add('active-title');
+            }
+        }
+    }
+
+    function displayRelatedChannels(category) {
+        removeDynamicTabs();
+
+        const relatedChannels = allChannelsCombined.filter(channel =>
+            channel.category === category && (channel.status || 'on') === 'on'
+        );
+        displayAllChannels(relatedChannels);
+        
+        displayChannelListTitles('related', category);
+        const relatedTab = document.querySelector('.channel-list-titles h3[data-source-type="related-filter"]');
+        if (relatedTab) {
+            updateActiveChannelListTitle(relatedTab);
+        }
+    }
+
+    async function removeCustomM3U(key, name) {
+        if (window.confirm(`${translations[currentLanguage].confirm_remove_list_prefix}"${name}"${translations[currentLanguage].confirm_remove_list_suffix}`)) {
+            try {
+                await customM3URef.child(key).remove();
+                window.alert(`${translations[currentLanguage].list_removed_success}`);
+            } catch (error) {
+                console.error("Failed to remove custom M3U list:", error);
+                window.alert(`${translations[currentLanguage].failed_to_remove_list} ${error.message}`);
+            }
+        }
+    }
+
+    categoryIcon.addEventListener('click', () => {
+        closeAllOverlaysExcept(categoryMenuOverlay);
+        categoryMenuOverlay.classList.add('open');
+        displayCategories(allGroupData);
+    });
+
+    closeCategoryMenuBtn.addEventListener('click', () => {
+        categoryMenuOverlay.classList.remove('open');
+    });
+
+    function displayCategories(groupsToDisplay) {
+        categoryListEl.innerHTML = '';
+
+        const allChannelsOption = document.createElement('li');
+        allChannelsOption.innerHTML = `
+                <div class="category-icon-display">
+                    <i class="fas fa-grip-horizontal"></i>
+                </div>
+                <span class="category-name">${translations[currentLanguage].all_channels_title}</span>
+            `;
+        allChannelsOption.dataset.categoryName = 'All';
+        allChannelsOption.addEventListener('click', () => {
+            switchChannelList('default');
+            removeDynamicTabs();
+            categoryMenuOverlay.classList.remove('open');
+            allChannelsSection.scrollIntoView({ behavior: 'smooth' });
+        });
+        categoryListEl.appendChild(allChannelsOption);
+
+        const activeGroups = groupsToDisplay.filter(group => (group.originalData.status || 'on') === 'on');
+        activeGroups.sort((a, b) => (a.order || Infinity) - (b.order || Infinity));
+
+        activeGroups.forEach(group => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+                                <div class="category-icon-display">
+                                    ${group.logo ? `<img src="${group.logo}" alt="${group.name} Logo">` : `<i class="fas fa-tv"></i>`}
+                                </div>
+                                <span class="category-name">${group.name}</span>
+                            `;
+            listItem.dataset.categoryName = group.name;
+
+            listItem.addEventListener('click', (e) => {
+                const selectedCategory = e.currentTarget.dataset.categoryName;
+                
+                const filteredChannels = allChannelsCombined.filter(channel =>
+                    channel.category === selectedCategory && (channel.status || 'on') === 'on'
+                );
+                
+                displayAllChannels(filteredChannels);
+                categoryMenuOverlay.classList.remove('open');
+                allChannelsSection.scrollIntoView({ behavior: 'smooth' });
+
+                removeDynamicTabs();
+                displayChannelListTitles('category', selectedCategory);
+                const categoryTab = document.querySelector(`.channel-list-titles h3[data-source-type="category-filter"][data-source-key="${selectedCategory}"]`);
+                if (categoryTab) {
+                    updateActiveChannelListTitle(categoryTab);
+                }
+            });
+            categoryListEl.appendChild(listItem);
+        });
+
+        if (categoryListEl.children.length === 0) {
+            const noCategoriesItem = document.createElement('li');
+            noCategoriesItem.textContent = translations[currentLanguage].no_categories_found;
+            noCategoriesItem.style.color = '#a0a0a0';
+            noCategoriesItem.style.gridColumn = '1 / -1';
+            categoryListEl.appendChild(noCategoriesItem);
+        }
+    }
+
+    searchIcon.addEventListener('click', () => {
+        searchOverlay.style.display = 'flex';
+        closeAllOverlaysExcept(searchOverlay);
+        searchInput.focus();
+        filterChannels('');
+    });
+
+    closeSearchBtn.addEventListener('click', () => {
+        searchOverlay.style.display = 'none';
+        searchInput.value = '';
+        searchResultsList.innerHTML = '';
+    });
+
+    clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        filterChannels('');
+    });
+
+    searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        filterChannels(searchTerm);
+    });
+
+    function filterChannels(searchTerm) {
+        searchResultsList.innerHTML = '';
+
+        const activeChannels = allChannelsCombined.filter(channel => (channel.status || 'on') === 'on');
+        activeChannels.sort((a, b) => (a.order || Infinity) - (b.order || Infinity));
+
+        if (activeChannels.length === 0) {
+            const noChannelsItem = document.createElement('li');
+            noChannelsItem.textContent = translations[currentLanguage].no_channels_found;
+            noChannelsItem.style.color = '#a0a0a0';
+            noChannelsItem.style.gridColumn = '1 / -1';
+            searchResultsList.appendChild(noChannelsItem);
+            return;
+        }
+
+        const filtered = activeChannels.filter(channel =>
+            channel.name.toLowerCase().includes(searchTerm)
+        );
+
+        if (filtered.length === 0) {
+            const noResultsItem = document.createElement('li');
+            noResultsItem.textContent = translations[currentLanguage].no_results_found;
+            noResultsItem.style.color = '#a0a0a0';
+            searchResultsList.appendChild(noResultsItem);
+            return;
+        }
+
+        filtered.forEach(channel => {
+            const listItem = document.createElement('li');
+            const isPremium = channel.isPremium;
+
+            listItem.innerHTML = `
+                <div class="channel-icon-small">
+                    ${channel.logo ? `<img src="${channel.logo}" alt="${channel.name} Logo" style="width: 100%; height: 100%; border-radius: 50%;">` : channel.name.charAt(0).toUpperCase()}
+                </div>
+                <span class="channel-name-search">${channel.name} ${isPremium ? '⭐' : ''}</span>
+            `;
+            listItem.dataset.src = channel.url;
+            listItem.dataset.title = channel.name;
+            listItem.dataset.id = channel.id;
+            listItem.dataset.isPremium = isPremium;
+            listItem.dataset.status = channel.status;
+            listItem.dataset.category = channel.category;
+
+            listItem.addEventListener('click', (e) => {
+                const src = e.currentTarget.dataset.src;
+                const title = e.currentTarget.dataset.title;
+                const id = e.currentTarget.dataset.id;
+                const isPremiumChannel = e.currentTarget.dataset.isPremium === 'true';
+                const category = e.currentTarget.dataset.category;
+                loadChannel(src, title, id, isPremiumChannel, category);
+                searchOverlay.style.display = 'none';
+            });
+            searchResultsList.appendChild(listItem);
+        });
+    }
+
+    titleBookmarkIcon.addEventListener('click', async () => {
+        if (!currentChannelId) return;
+
+        const channelToBookmark = allChannelsCombined.find(c => c.id === currentChannelId);
+        if (!channelToBookmark) {
+            window.alert(translations[currentLanguage].channel_not_found_bookmark);
+            return;
+        }
+
+        if ((channelToBookmark.status || 'on') === 'off') {
+            window.alert(`${translations[currentLanguage].cannot_bookmark_prefix} "${channelToBookmark.name}". ${translations[currentLanguage].status_off_suffix}`);
+            return;
+        }
+
+        const user = auth.currentUser;
+        let storedBookmarks = JSON.parse(localStorage.getItem('userBookmarks') || '{}');
+
+        if (user) {
+            // Logged in user: Sync with Firebase
+            const bookmarkChannelRef = db.ref(`user_bookmarks/${user.uid}/${currentChannelId}`);
+            const snapshot = await bookmarkChannelRef.once('value');
+
+            if (snapshot.exists()) {
+                bookmarkChannelRef.remove()
+                    .catch(error => console.error("Error removing bookmark from Firebase:", error));
+                delete storedBookmarks[currentChannelId]; // Update local cache
+            } else {
+                bookmarkChannelRef.set(channelToBookmark)
+                    .catch(error => console.error("Error setting bookmark to Firebase:", error));
+                storedBookmarks[currentChannelId] = channelToBookmark; // Update local cache
+            }
+        } else {
+            // Not logged in: Use only local storage
+            if (storedBookmarks[currentChannelId]) {
+                delete storedBookmarks[currentChannelId];
+            } else {
+                storedBookmarks[currentChannelId] = channelToBookmark;
+            }
+        }
+        localStorage.setItem('userBookmarks', JSON.stringify(storedBookmarks));
+        updateBookmarkButtonState(currentChannelId);
+        displayBookmarkedChannels(); // Refresh bookmark list if open
+    });
+
+
+    function updateBookmarkButtonState(channelId) {
+        if (!channelId) {
+            titleBookmarkIcon.classList.remove('bookmarked');
+            return;
+        }
+        const storedBookmarks = JSON.parse(localStorage.getItem('userBookmarks') || '{}');
+        const isBookmarkedAndActive = storedBookmarks[channelId] && (storedBookmarks[channelId].status || 'on') === 'on';
+
+        if (isBookmarkedAndActive) {
+            titleBookmarkIcon.classList.add('bookmarked');
+        } else {
+            titleBookmarkIcon.classList.remove('bookmarked');
+        }
+    }
+
+    bookmarkIcon.addEventListener('click', () => {
+        bookmarkOverlay.style.display = 'flex';
+        closeAllOverlaysExcept(bookmarkOverlay);
+        displayBookmarkedChannels();
+    });
+
+    closeBookmarkBtn.addEventListener('click', () => {
+        bookmarkOverlay.style.display = 'none';
+    });
+
+    function displayBookmarkedChannels() {
+        bookmarkChannelsList.innerHTML = '';
+
+        const storedBookmarks = JSON.parse(localStorage.getItem('userBookmarks') || '{}');
+        let bookmarkedChannelsArray = Object.values(storedBookmarks);
+
+        bookmarkedChannelsArray = bookmarkedChannelsArray.filter(channel => (channel.status || 'on') === 'on');
+        bookmarkedChannelsArray.sort((a, b) => (a.order || Infinity) - (b.order || Infinity));
+
+
+        if (bookmarkedChannelsArray.length === 0) {
+            const noBookmarksItem = document.createElement('li');
+            noBookmarksItem.textContent = translations[currentLanguage].no_bookmarks_found;
+            noBookmarksItem.style.color = '#a0a0a0';
+            noBookmarksItem.style.gridColumn = '1 / -1';
+            bookmarkChannelsList.appendChild(noBookmarksItem);
+            return;
+        }
+
+        bookmarkedChannelsArray.forEach(channel => {
+            const isPremium = channel.isPremium;
+
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+                <div class="channel-icon-small">
+                    ${channel.logo ? `<img src="${channel.logo}" alt="${channel.name} Logo" style="width: 100%; height: 100%; border-radius: 50%;">` : channel.name.charAt(0).toUpperCase()}
+                </div>
+                <span class="channel-name-bookmark">${channel.name} ${isPremium ? '⭐' : ''}</span>
+                <button class="remove-bookmark-btn" data-id="${channel.id}" title="${translations[currentLanguage].remove_bookmark_title}">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            listItem.dataset.src = channel.url;
+            listItem.dataset.title = channel.name;
+            listItem.dataset.id = channel.id;
+            listItem.dataset.isPremium = isPremium;
+            listItem.dataset.status = channel.status;
+            listItem.dataset.category = channel.category;
+
+
+            listItem.addEventListener('click', (e) => {
+                if (e.target.closest('.remove-bookmark-btn')) {
+                    return;
+                }
+                const src = e.currentTarget.dataset.src;
+                const title = e.currentTarget.dataset.title;
+                const id = e.currentTarget.dataset.id;
+                const isPremiumChannel = e.currentTarget.dataset.isPremium === 'true';
+                const category = e.currentTarget.dataset.category;
+                loadChannel(src, title, id, isPremiumChannel, category);
+                bookmarkOverlay.style.display = 'none';
+            });
+
+            listItem.querySelector('.remove-bookmark-btn').addEventListener('click', (e) => {
+                const channelIdToRemove = e.currentTarget.dataset.id;
+                const user = auth.currentUser;
+                let storedBookmarks = JSON.parse(localStorage.getItem('userBookmarks') || '{}');
+
+                if (user) {
+                    db.ref(`user_bookmarks/${user.uid}/${channelIdToRemove}`).remove()
+                        .catch(error => console.error("Error removing bookmark from Firebase:", error));
+                }
+                delete storedBookmarks[channelIdToRemove];
+                localStorage.setItem('userBookmarks', JSON.stringify(storedBookmarks));
+                displayBookmarkedChannels(); // Refresh the displayed list immediately
+                updateBookmarkButtonState(currentChannelId);
+            });
+            bookmarkChannelsList.appendChild(listItem);
+        });
+    }
+
+    function listenForBookmarks() {
+        userBookmarksRef.on('value', snapshot => {
+            const firebaseBookmarks = snapshot.val() || {};
+            const storedBookmarks = JSON.parse(localStorage.getItem('userBookmarks') || '{}');
+            
+            if (auth.currentUser) {
+                // Merge Firebase bookmarks into local storage, preferring Firebase for logged-in users
+                const mergedBookmarks = { ...storedBookmarks, ...firebaseBookmarks };
+                localStorage.setItem('userBookmarks', JSON.stringify(mergedBookmarks));
+            } else {
+                // For non-logged-in users, we still rely on local storage,
+                // but this listener won't update local storage from Firebase (as userBookmarksRef won't exist for anonymous)
+                // This part primarily ensures `updateBookmarkButtonState` works based on local storage
+            }
+            
+            if (bookmarkOverlay.style.display === 'flex') {
+                displayBookmarkedChannels();
+            }
+            updateBookmarkButtonState(currentChannelId);
+        }, error => {
+            // If there's an error fetching from Firebase (e.g., no connection, or no user logged in)
+            // we gracefully fall back to local storage without an alert, just log.
+            console.error("Error fetching bookmarks from Firebase, falling back to local storage data:", error);
+            const storedBookmarks = localStorage.getItem('userBookmarks');
+            if (storedBookmarks) {
+                if (bookmarkOverlay.style.display === 'flex') {
+                    displayBookmarkedChannels();
+                }
+                updateBookmarkButtonState(currentChannelId);
+            }
+        });
+    }
+
+    // UPDATED: eventIcon click listener to load event.php in an iframe
+    eventIcon.addEventListener('click', () => {
+        openFullScreenEmbed('/event.php'); // Load event.php in the fullscreen embed overlay
+    });
+
+
+    function closeAllOverlays() {
+        const overlays = [addLinkOverlay, searchOverlay, bookmarkOverlay, categoryMenuOverlay, eventFullscreenOverlay, customAlertOverlay, fullScreenEmbedOverlay, introVideoOverlay, internetStatusOverlay];
+        overlays.forEach(overlay => {
+            if (overlay === categoryMenuOverlay) {
+                overlay.classList.remove('open');
+            } else if (overlay === customAlertOverlay) {
+                overlay.classList.remove('visible');
+            } else {
+                overlay.style.display = 'none';
+            }
+            if (overlay === fullScreenEmbedOverlay) { // Clear iframe source when closing
+                fullScreenEmbedIframe.src = '';
+            }
+            // Clear intro video related intervals and elements
+            if (overlay === introVideoOverlay) {
+                if (hlsIntroInstance) { // Check for HLS.js intro instance
+                    hlsIntroInstance.destroy();
+                    hlsIntroInstance = null;
+                }
+                introVideoPlayer.pause();
+                introVideoPlayer.currentTime = 0;
+                introVideoPlayer.controls = false;
+                if (introVideoAdCountdownInterval) clearInterval(introVideoAdCountdownInterval);
+                document.getElementById('introAdButtonContainer').innerHTML = '';
+                document.getElementById('introAdButtonContainer').style.display = 'none';
+            }
+        });
+    }
+
+    function closeAllOverlaysExcept(exceptionOverlay) {
+        const overlays = [addLinkOverlay, searchOverlay, bookmarkOverlay, categoryMenuOverlay, eventFullscreenOverlay, customAlertOverlay, fullScreenEmbedOverlay, introVideoOverlay, internetStatusOverlay];
+        overlays.forEach(overlay => {
+            if (overlay !== exceptionOverlay) {
+                if (overlay === categoryMenuOverlay) {
+                    overlay.classList.remove('open');
+                } else if (overlay === customAlertOverlay) {
+                    overlay.classList.remove('visible');
+                } else {
+                    overlay.style.display = 'none';
+                }
+                if (overlay === fullScreenEmbedOverlay) { // Clear iframe source when closing
+                    fullScreenEmbedIframe.src = '';
+                }
+                // Clear intro video related intervals and elements
+                if (overlay === introVideoOverlay) {
+                    if (hlsIntroInstance) { // Check for HLS.js intro instance
+                        hlsIntroInstance.destroy();
+                        hlsIntroInstance = null;
+                    }
+                    introVideoPlayer.pause();
+                    introVideoPlayer.currentTime = 0;
+                    introVideoPlayer.controls = false;
+                    if (introVideoAdCountdownInterval) clearInterval(introVideoAdCountdownInterval);
+                    document.getElementById('introAdButtonContainer').innerHTML = '';
+                    document.getElementById('introAdButtonContainer').style.display = 'none';
+                }
+            }
+        });
+    }
+
+    // UPDATED: profileOpenBtn click listener to open profile.php in an iframe
+    profileOpenBtn.addEventListener('click', () => {
+        openFullScreenEmbed('/profile.php'); // Load profile.php in the fullscreen embed overlay
+    });
+
+
+    async function loadAdsConditionally() {
+        const existingAdScripts = document.querySelectorAll('script[data-ad-type="popunder"]');
+        existingAdScripts.forEach(script => script.remove());
+
+        try {
+            const adsSnapshot = await adsConfigRef.once('value');
+            const adsConfig = adsSnapshot.val();
+            console.log("Ads Config for popunder (loadAdsConditionally):", adsConfig); // Diagnostic log
+
+            if (adsConfig && adsConfig.status === 'on' && adsConfig.popunder_ad_code) {
+                let shouldLoadAd = false;
+
+                if (!auth.currentUser) { // If no user is logged in
+                    shouldLoadAd = true;
+                } else { // If a user is logged in, check premium status
+                    // isPremiumUser is already set by the auth.onAuthStateChanged listener
+                    if (!isPremiumUser) {
+                        shouldLoadAd = true;
+                    }
+                }
+
+                if (shouldLoadAd) {
+                    console.log("Popunder ad should load."); // Diagnostic log
+                    const script = document.createElement('script');
+                    script.type = 'text/javascript';
+                    script.innerHTML = adsConfig.popunder_ad_code;
+                    script.setAttribute('data-ad-type', 'popunder');
+                    document.head.appendChild(script);
+                } else {
+                    console.log("Popunder ad should NOT load (premium user or ads disabled)."); // Diagnostic log
+                }
+            } else {
+                console.log("Popunder ads are disabled in config or missing code."); // Diagnostic log
+            }
+        } catch (error) {
+            console.error("Error loading conditional ads:", error);
+        }
+    }
+
+
+    auth.onAuthStateChanged(async user => {
+        const logoContainer = document.querySelector('.app-header .logo');
+        if (user) {
+            currentUserID = user.uid;
+            // Set up listener for current user's profile
+            if (currentUserProfileListener) {
+                userProfilesRef.child(currentUserID).off('value', currentUserProfileListener);
+            }
+            currentUserProfileListener = userProfilesRef.child(currentUserID).on('value', snapshot => {
+                const userData = snapshot.val() || {};
+                // Update global photoURL
+                currentUserPhotoURL = userData.photoURL || null;
+                // Update global display name
+                currentUsername = userData.name || user.displayName || user.email.split('@')[0];
+
+                // Determine isPremiumUser here
+                const premiumEndDate = parseDateString(userData?.premiumUntil);
+                isPremiumUser = userData?.isPremium && premiumEndDate?.getTime() > new Date().getTime();
+
+                // *** START: Real-time premium status update for header ***
+                if (isPremiumUser) {
+                    logoContainer.classList.add('premium-active');
+                } else {
+                    logoContainer.classList.remove('premium-active');
+                }
+                // *** END: Real-time premium status update for header ***
+
+                // Call loadAdsConditionally here after isPremiumUser is set
+                loadAdsConditionally();
+            }, error => {
+                console.error("Error listening for current user profile changes:", error);
+                // Fallback to user.photoURL if DB fetch fails
+                currentUserPhotoURL = user.photoURL || null;
+                currentUsername = user.displayName || user.email.split('@')[0];
+                isPremiumUser = false; // Ensure it's false on error
+                
+                logoContainer.classList.remove('premium-active'); // Ensure premium style is removed on error
+                
+                // Call loadAdsConditionally here after isPremiumUser is set
+                loadAdsConditionally();
+            });
+
+            const userPresenceRef = db.ref('presence/' + user.uid);
+            userPresenceRef.onDisconnect().remove()
+                .catch(error => console.error("Error setting onDisconnect for presence:", error));
+            userPresenceRef.set({
+                displayName: currentUsername, // Use updated currentUsername
+                photoURL: currentUserPhotoURL, // Use updated currentUserPhotoURL
+                last_active: firebase.database.ServerValue.TIMESTAMP
+            })
+                .catch(error => console.error("Error setting user presence:", error));
+
+            loadAdsConditionally(); // Call here for logged in users
+
+        } else {
+            // User logged out
+            if (currentUserID) {
+                db.ref('presence/' + currentUserID).remove()
+                    .catch(error => console.error("Error removing old user presence:", error));
+                // Turn off the user profile listener when logged out
+                if (currentUserProfileListener) {
+                    userProfilesRef.child(currentUserID).off('value', currentUserProfileListener);
+                    currentUserProfileListener = null;
+                }
+                currentUserID = '';
+            }
+            
+            currentUsername = '';
+            currentUserPhotoURL = '';
+            if (logoContainer) {
+                logoContainer.classList.remove('premium-active');
+            }
+            isPremiumUser = false; // Reset premium user flag on logout
+
+            loadAdsConditionally(); // Call here for logged out users (will show ads)
+        }
+    });
+
+    // Internet connection status handling
+    function checkInternetStatus() {
+        if (navigator.onLine) {
+            internetStatusOverlay.style.display = 'none';
+        } else {
+            internetStatusOverlay.style.display = 'flex';
+        }
+    }
+
+    // Initial check on load
+    checkInternetStatus();
+
+    // Listen for online/offline events
+    window.addEventListener('online', checkInternetStatus);
+    window.addEventListener('offline', checkInternetStatus);
+
+</script>
+
+</body>
+</html>
