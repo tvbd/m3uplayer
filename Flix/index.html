@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BDIX FLIXBD LIVE - TV</title>
+
+<style>
+   
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        color: white;
+        background: #202020;
+        overflow-x: hidden;
+        animation: fadeIn 0.6s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.98); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    .main-container {
+        display: flex;
+        padding: 25px;
+        height: 95vh;
+        max-height: 95vh;
+        gap: 20px;
+    }
+
+    .content-area {
+        flex: 3;
+        background: rgba(32, 32, 32, 0.75);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        min-height: 320px;
+    }
+
+    .welcome-message {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        text-align: center;
+        z-index: 2;
+    }
+
+    .welcome-message h1 {
+        font-size: 2.3em;
+        text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.9);
+        color: white;
+        overflow: hidden;
+        border-right: .15em solid #00BFFF;
+        white-space: nowrap;
+        margin: 0 auto;
+        letter-spacing: .15em;
+        width: 0;
+        max-width: 100%;
+    }
+
+    :root {
+        --char-count: 27;
+    }
+
+    @keyframes typing {
+        0% { width: 0; }
+        45% { width: 100%; }
+        55% { border-color: transparent; width: 100%; }
+        100% { width: 0; border-color: #00BFFF; }
+    }
+
+    .typing-animation {
+        animation: typing 5s steps(var(--char-count), end) infinite;
+    }
+
+    .welcome-message .highlight {
+        background-color: #00BFFF;
+        color: #000;
+        padding: 5px 20px;
+        border-radius: 25px;
+        font-weight: bold;
+    }
+
+    .video-player-container {
+        width: 100%;
+        height: 100%;
+        padding: 10px;
+        display: none;
+    }
+
+    #player {
+        width: 100%;
+        height: 100%;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        object-fit: cover;
+    }
+
+    .sidebar {
+        flex: 1;
+        background: #2E2E2E;
+        border-radius: 10px;
+        padding: 5px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-height: 100%;
+    
+           
+            position: sticky;
+            top: 20px;
+            border-radius: 16px 0 0 16px;
+            margin: 25px 0px 0px;
+        
+        
+    }
+
+    .category-nav {
+        background-color: #383838;
+        padding: 5px;
+        border-radius: 5px;
+        overflow-x: auto;
+    }
+
+    .category-nav ul {
+        list-style: none;
+        display: flex;
+        flex-wrap: nowrap;
+    }
+
+    .category-nav li {
+        padding: 8px 15px;
+        background: transparent;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-size: 0.9em;
+        font-weight: 500;
+        color: #ccc;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .category-nav li.active {
+        background: #474747;
+        color: white;
+        font-weight: bold;
+        border-radius: 5px;
+    }
+
+    .channel-grid {
+        flex-grow: 1;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+        gap: 15px;
+        overflow-y: auto;
+        padding: 12px;
+        background: #2E2E2E;
+        border-radius: 8px;
+        justify-items: center;
+        align-items: center;
+    }
+
+    .channel-grid::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .channel-grid::-webkit-scrollbar-thumb {
+        background: #00BFFF;
+        border-radius: 10px;
+    }
+
+    .channel-item {
+        background: white;
+        border-radius: 6px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.3s, box-shadow 0.3s, border 0.3s;
+        aspect-ratio: 1 / 1;
+        border: 2px solid transparent;
+        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 8px;
+    }
+
+    .channel-item:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+        border: 2px solid #555;
+    }
+
+    .channel-item img {
+        max-width: 85%;
+        max-height: 85%;
+        object-fit: contain;
+    }
+
+    .loading-message {
+        color: #00BFFF;
+        text-align: center;
+        padding: 20px;
+        font-size: 1.2em;
+        grid-column: 1 / -1;
+    }
+
+    /*     */
+    @media (max-width: 768px) {
+        .main-container {
+            flex-direction: column;
+            padding: 10px;
+            height: auto;
+            min-height: 100vh;
+            gap: 15px;
+        }
+
+        .content-area {
+            width: 100%;
+            height: 50vh;
+            min-height: 280px;
+        }
+
+        .welcome-message h1 {
+            font-size: 1.5em;
+            letter-spacing: .08em;
+        }
+
+        .sidebar {
+            width: 100%;
+            flex: unset;
+            padding: 8px;
+        }
+
+        .channel-grid {
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .category-nav {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .channel-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .channel-item {
+            padding: 5px;
+        }
+    }
+
+</style>
+</head>
+
+<body>
+<div class="main-container">
+    <div class="content-area">
+        <div class="welcome-message" id="welcomeMessage">
+            <h1 class="typing-animation">WELCOME TO <span class="highlight">BDIX FLIXBD LIVE - TV</span></h1>
+        </div>
+        <div class="video-player-container" id="videoPlayer">
+            <video id="player" controls autoplay></video>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <nav class="category-nav">
+            <ul id="categoryList">
+                <li data-category="live" class="active">LIVE</li>
+                <li data-category="bangla">BANGLA</li>
+                <li data-category="indian">INDIAN</li>
+                <li data-category="music">MUSIC</li>
+                <li data-category="kids">KIDS</li>
+                <li data-category="others">OTHERS</li>
+            </ul>
+        </nav>
+        <div class="channel-grid" id="channelGrid">
+            <div class="loading-message">Loading Channels...</div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const M3U_PLAYLIST_URL = 'https://raw.githubusercontent.com/tvbd/m3uplayer/refs/heads/main/m3u/Toffee-iptv.m3u'; 
+    
+    const categoryNav = document.getElementById('categoryList');
+    const channelGrid = document.getElementById('channelGrid');
+    const welcomeMessage = document.getElementById('welcomeMessage');
+    const welcomeHeading = document.querySelector('.welcome-message h1');
+    const videoPlayerContainer = document.getElementById('videoPlayer');
+    const videoElement = document.getElementById('player');
+    let hls;
+    let allChannels = [];
+    let categorizedChannels = {};
+
+    function normalizeCategory(groupName) {
+        if (!groupName) return 'Others';
+        return groupName.toUpperCase().trim().replace(/ /g, '_');
+    }
+
+    function parseM3U(data) {
+        const lines = data.split('\n');
+        let channels = [];
+        let currentChannel = null;
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (line.startsWith('#EXTINF')) {
+                currentChannel = { name: '', logo: '', group: 'Others', stream_url: '' };
+                const nameMatch = line.match(/,(.*)$/);
+                if (nameMatch) currentChannel.name = nameMatch[1].trim();
+                const logoMatch = line.match(/tvg-logo="(.*?)"/);
+                if (logoMatch) currentChannel.logo = logoMatch[1];
+                const groupMatch = line.match(/group-title="(.*?)"/);
+                if (groupMatch) currentChannel.group = normalizeCategory(groupMatch[1]);
+            } else if (currentChannel && line && !line.startsWith('#')) {
+                currentChannel.stream_url = line;
+                channels.push(currentChannel);
+                currentChannel = null;
+            }
+        }
+        return channels;
+    }
+
+    function categorizeChannels(channels) {
+        const categorized = { 'all': channels };
+        const categoriesMap = new Map(); 
+        channels.forEach(channel => {
+            const group = channel.group;
+            if (!categoriesMap.has(group)) {
+                categoriesMap.set(group, []);
+            }
+            categoriesMap.get(group).push(channel);
+        });
+        categoriesMap.forEach((channelList, groupName) => {
+            categorized[groupName.toLowerCase()] = channelList;
+        });
+        return categorized;
+    }
+
+    function loadChannels(category = 'live') {
+        channelGrid.innerHTML = '';
+        const channelsToLoad = categorizedChannels[category] || []; 
+        if (channelsToLoad.length === 0) {
+            channelGrid.innerHTML = '<div class="loading-message">No channels found in this category.</div>';
+            return;
+        }
+        channelsToLoad.forEach(channel => {
+            const channelDiv = document.createElement('div');
+            channelDiv.className = 'channel-item';
+            const logoUrl = channel.logo ? channel.logo : 'https://via.placeholder.com/150?text=TV';
+            channelDiv.innerHTML = `<img src="${logoUrl}" alt="${channel.name}" title="${channel.name}">`; 
+            channelDiv.addEventListener('click', () => {
+                playStream(channel.stream_url);
+            });
+            channelGrid.appendChild(channelDiv);
+        });
+    }
+
+    function playStream(url) {
+        welcomeMessage.style.display = 'none';
+        videoPlayerContainer.style.display = 'block';
+        welcomeHeading.classList.remove('typing-animation');
+
+        if (Hls.isSupported()) {
+            if (hls) hls.destroy();
+            hls = new Hls();
+            hls.loadSource(url);
+            hls.attachMedia(videoElement);
+            hls.on(Hls.Events.MANIFEST_PARSED, function () { videoElement.play(); });
+        } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+            videoElement.src = url;
+            videoElement.addEventListener('loadedmetadata', function () { videoElement.play(); });
+        }
+    }
+
+    categoryNav.addEventListener('click', (e) => {
+        if (e.target.tagName === 'LI') {
+            document.querySelector('.category-nav li.active').classList.remove('active');
+            e.target.classList.add('active');
+            const category = e.target.getAttribute('data-category');
+            loadChannels(category); 
+        }
+    });
+
+    async function loadM3UPlaylist() {
+        try {
+            const response = await fetch(M3U_PLAYLIST_URL);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.text();
+            allChannels = parseM3U(data);
+            categorizedChannels = categorizeChannels(allChannels); 
+            loadChannels('live'); 
+        } catch (error) {
+            console.error('Error loading M3U Playlist:', error);
+            channelGrid.innerHTML = `<div class="loading-message" style="color: red;">Error loading channels. Check M3U link or CORS policy.</div>`;
+        }
+    }
+    loadM3UPlaylist();
+});
+</script>
+</body>
+</html>
