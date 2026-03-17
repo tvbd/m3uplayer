@@ -1,4 +1,6 @@
 #EXTM3U
+#EXTINF:-1 tvg-name="BTV" tvg-logo="https://www.btvlive.gov.bd/_next/image?url=https%3A%2F%2Fd38ll44lbmt52p.cloudfront.net%2Fcms%2Fchannel_poster%2F1677040358634_BTVogo.png&w=1920&q=75" group-title="Bangladesh",BTV
+https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/index.m3u8
 #EXTINF:-1 tvg-name="Anirban" tvg-logo="https://i.imgur.com/rwd1rei.png" group-title="Bangladesh",Anirban
 https://live20.bozztv.com/giatvplayout7/giatv-209627/tracks-v1a1/mono.ts.m3u8
 #EXTINF:-1 tvg-name="ASH TV" tvg-logo="https://www.jagobd.com/wp-content/uploads/2025/06/ASH-TV.jpg" group-title="Bangladesh",ASH TV
@@ -13,8 +15,6 @@ https://owrcovcrpy.gpcdn.net/bpk-tv/1722/output/index.m3u8
 https://owrcovcrpy.gpcdn.net/bpk-tv/1706/output/index.m3u8
 #EXTINF:-1 tvg-name="Banglavision" tvg-logo="https://i.postimg.cc/JzGFfbYb/20250529-072833.png" group-title="Bangladesh",Banglavision
 https://owrcovcrpy.gpcdn.net/bpk-tv/1715/output/index.m3u8
-#EXTINF:-1 tvg-name="BTV" tvg-logo="https://www.btvlive.gov.bd/_next/image?url=https%3A%2F%2Fd38ll44lbmt52p.cloudfront.net%2Fcms%2Fchannel_poster%2F1677040358634_BTVogo.png&w=1920&q=75" group-title="Bangladesh",BTV
-https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/index.m3u8
 #EXTINF:-1 tvg-name="Channel9" tvg-logo="https://www.jagobd.com/wp-content/uploads/2015/10/ch9-150x150.jpg" group-title="Bangladesh",Channel9
 https://owrcovcrpy.gpcdn.net/bpk-tv/1729/output/index.m3u8
 #EXTINF:-1 tvg-name="Channel24" tvg-logo="https://i.postimg.cc/nLmPznJr/20250529-071852.png" group-title="Bangladesh",Channel24
